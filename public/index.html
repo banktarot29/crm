@@ -1,0 +1,1495 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BankTarot Private Advisor OS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Noto+Sans+Thai:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F7F4ED;
+  --paper-2:#FDFBF7;
+  --ink:#26241F;
+  --ink-soft:#5C5850;
+  --ink-faint:#8A857A;
+  --line:#E5DFD2;
+  --line-soft:#EEE9DD;
+  --gold:#A8853B;
+  --gold-soft:#F1E9D6;
+  --gold-deep:#7E6224;
+  --green:#4A6B52;
+  --green-soft:#E7EEE8;
+  --red:#A3503F;
+  --red-soft:#F4E4DF;
+  --amber:#B07D2E;
+  --amber-soft:#F5EBD6;
+  --shadow:0 1px 2px rgba(38,36,31,.05),0 4px 16px rgba(38,36,31,.06);
+  --radius:14px;
+  --font-display:"Fraunces",serif;
+  --font-body:"Noto Sans Thai",system-ui,sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%}
+body{font-family:var(--font-body);background:var(--paper);color:var(--ink);font-size:15px;line-height:1.65;-webkit-font-smoothing:antialiased}
+button{font-family:inherit;cursor:pointer}
+input,select,textarea{font-family:inherit;font-size:14px;color:var(--ink)}
+
+/* ===== Layout ===== */
+.app{display:flex;min-height:100vh}
+.sidebar{width:230px;flex-shrink:0;background:var(--paper-2);border-right:1px solid var(--line);padding:28px 16px;display:flex;flex-direction:column;gap:4px;position:sticky;top:0;height:100vh}
+.brand{padding:0 12px 22px}
+.brand h1{font-family:var(--font-display);font-size:19px;font-weight:600;letter-spacing:.01em}
+.brand span{display:block;font-size:11.5px;color:var(--ink-faint);letter-spacing:.08em;text-transform:uppercase;margin-top:2px}
+.nav-btn{display:flex;align-items:center;gap:10px;width:100%;text-align:left;padding:10px 12px;border:none;background:transparent;border-radius:10px;font-size:14px;color:var(--ink-soft);font-weight:500;transition:background .15s,color .15s;position:relative}
+.nav-btn:hover{background:var(--line-soft)}
+.nav-btn.active{background:var(--ink);color:var(--paper-2)}
+.nav-btn .badge{margin-left:auto;background:var(--gold);color:#fff;font-size:11px;font-weight:600;border-radius:99px;padding:1px 8px}
+.nav-btn.active .badge{background:var(--gold)}
+.sidebar-foot{margin-top:auto;padding:12px;font-size:11.5px;color:var(--ink-faint);line-height:1.5;border-top:1px solid var(--line-soft)}
+.main{flex:1;min-width:0;padding:36px 44px 80px;max-width:1080px}
+
+/* ===== Common ===== */
+.page-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:26px;flex-wrap:wrap}
+.page-head h2{font-family:var(--font-display);font-size:28px;font-weight:500;line-height:1.2}
+.page-head p{color:var(--ink-soft);font-size:13.5px;margin-top:4px}
+.head-actions{display:flex;gap:10px;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;gap:7px;border-radius:10px;padding:9px 16px;font-size:13.5px;font-weight:600;border:1px solid var(--line);background:var(--paper-2);color:var(--ink);transition:all .15s}
+.btn:hover{border-color:var(--ink-faint)}
+.btn.primary{background:var(--ink);border-color:var(--ink);color:var(--paper-2)}
+.btn.primary:hover{background:#3a372f}
+.btn.gold{background:var(--gold);border-color:var(--gold);color:#fff}
+.btn.gold:hover{background:var(--gold-deep)}
+.btn.sm{padding:6px 12px;font-size:12.5px;border-radius:8px}
+.btn.ghost{border-color:transparent;background:transparent;color:var(--ink-soft)}
+.btn.ghost:hover{background:var(--line-soft)}
+.btn.danger{color:var(--red);border-color:var(--red-soft)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.card{background:var(--paper-2);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+.chip{display:inline-block;font-size:11.5px;font-weight:600;border-radius:99px;padding:2px 10px;background:var(--line-soft);color:var(--ink-soft)}
+.chip.gold{background:var(--gold-soft);color:var(--gold-deep)}
+.chip.green{background:var(--green-soft);color:var(--green)}
+.chip.red{background:var(--red-soft);color:var(--red)}
+.chip.amber{background:var(--amber-soft);color:var(--amber)}
+.empty{border:1.5px dashed var(--line);border-radius:var(--radius);padding:44px 24px;text-align:center;color:var(--ink-soft)}
+.empty h3{font-family:var(--font-display);font-weight:500;font-size:18px;color:var(--ink);margin-bottom:6px}
+.empty p{font-size:13.5px;max-width:420px;margin:0 auto 16px}
+.toolbar{display:flex;gap:10px;margin-bottom:18px;flex-wrap:wrap}
+.toolbar input[type=search]{flex:1;min-width:200px}
+input[type=text],input[type=search],input[type=tel],input[type=email],input[type=date],input[type=time],input[type=number],select,textarea{
+  width:100%;padding:9px 12px;border:1px solid var(--line);border-radius:10px;background:var(--paper-2);outline:none;transition:border-color .15s}
+input:focus,select:focus,textarea:focus{border-color:var(--gold)}
+textarea{resize:vertical;min-height:80px;line-height:1.6}
+label{display:block;font-size:12.5px;font-weight:600;color:var(--ink-soft);margin-bottom:5px}
+.field{margin-bottom:14px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:0 16px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0 16px}
+.section-title{font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gold-deep);margin:26px 0 12px;padding-bottom:8px;border-bottom:1px solid var(--line-soft)}
+.section-title:first-child{margin-top:0}
+
+/* ===== Today Alerts ===== */
+.today-summary{display:flex;gap:12px;margin-bottom:22px;flex-wrap:wrap}
+.stat{flex:1;min-width:130px;background:var(--paper-2);border:1px solid var(--line);border-radius:var(--radius);padding:14px 18px}
+.stat b{font-family:var(--font-display);font-size:26px;font-weight:600;display:block;line-height:1.1}
+.stat span{font-size:12px;color:var(--ink-soft)}
+.alert-card{background:var(--paper-2);border:1px solid var(--line);border-left:4px solid var(--line);border-radius:var(--radius);padding:18px 20px;margin-bottom:12px;box-shadow:var(--shadow)}
+.alert-card.urgent{border-left-color:var(--red)}
+.alert-card.watch{border-left-color:var(--amber)}
+.alert-card.normal{border-left-color:var(--green)}
+.alert-top{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px}
+.alert-top .name{font-weight:700;font-size:15.5px}
+.alert-top .score{margin-left:auto;font-family:var(--font-display);font-size:15px;font-weight:600;color:var(--ink-soft)}
+.alert-reason{font-size:14px;color:var(--ink);margin-bottom:4px}
+.alert-action{font-size:13px;color:var(--ink-soft);margin-bottom:12px}
+.alert-btns{display:flex;gap:8px;flex-wrap:wrap}
+.alert-done{opacity:.5}
+
+/* ===== Clients ===== */
+.client-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
+.client-card{padding:16px 18px;cursor:pointer;transition:border-color .15s}
+.client-card:hover{border-color:var(--gold)}
+.client-card .cname{font-weight:700;font-size:15.5px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.client-card .cmeta{font-size:12.5px;color:var(--ink-soft);margin:6px 0 10px}
+.client-card .ctags{display:flex;gap:6px;flex-wrap:wrap}
+
+/* ===== Profile / detail ===== */
+.detail-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:8px}
+.detail-head h2{font-family:var(--font-display);font-size:26px;font-weight:500}
+.kv{display:grid;grid-template-columns:150px 1fr;gap:6px 16px;font-size:14px}
+.kv dt{color:var(--ink-faint);font-size:13px}
+.kv dd{color:var(--ink)}
+.panel{padding:20px 22px;margin-bottom:16px}
+.row-item{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--line-soft);flex-wrap:wrap}
+.row-item:last-child{border-bottom:none}
+.row-item .grow{flex:1;min-width:180px}
+.row-item .title{font-weight:600;font-size:14px}
+.row-item .sub{font-size:12.5px;color:var(--ink-soft)}
+
+/* ===== Table-ish session list ===== */
+.list-head{display:flex;font-size:11.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-faint);padding:0 18px 8px}
+
+/* ===== Modal ===== */
+.overlay{position:fixed;inset:0;background:rgba(38,36,31,.42);display:none;align-items:flex-start;justify-content:center;padding:40px 16px;z-index:50;overflow-y:auto}
+.overlay.open{display:flex}
+.modal{background:var(--paper-2);border-radius:16px;max-width:640px;width:100%;padding:28px 30px;box-shadow:0 20px 60px rgba(38,36,31,.25)}
+.modal h3{font-family:var(--font-display);font-size:20px;font-weight:500;margin-bottom:18px}
+.modal-foot{display:flex;justify-content:flex-end;gap:10px;margin-top:20px}
+.msg-box{white-space:pre-wrap;background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:16px 18px;font-size:14.5px;line-height:1.8;margin-bottom:14px}
+
+/* ===== Report ===== */
+.report-sheet{background:#fff;border:1px solid var(--line);border-radius:4px;box-shadow:var(--shadow);max-width:800px;margin:0 auto;padding:56px 64px;color:#26241F}
+.report-sheet .r-brand{display:flex;justify-content:space-between;align-items:baseline;border-bottom:2px solid var(--ink);padding-bottom:14px;margin-bottom:26px}
+.report-sheet .r-brand h1{font-family:var(--font-display);font-size:21px;font-weight:600}
+.report-sheet .r-brand span{font-size:12px;color:var(--ink-faint);letter-spacing:.06em}
+.report-sheet h2{font-family:var(--font-display);font-size:16px;font-weight:600;color:var(--gold-deep);margin:24px 0 8px;display:flex;gap:10px;align-items:baseline}
+.report-sheet h2 .no{font-size:12px;color:var(--ink-faint);font-family:var(--font-body);font-weight:600}
+.report-sheet p,.report-sheet li{font-size:13.8px;line-height:1.85}
+.report-sheet ul{padding-left:20px;margin:4px 0}
+.report-sheet .r-meta{display:grid;grid-template-columns:1fr 1fr;gap:4px 24px;font-size:13px;background:var(--paper);border-radius:10px;padding:14px 18px;margin-bottom:8px}
+.report-sheet .r-sign{margin-top:40px;padding-top:18px;border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:24px;font-size:12.5px;color:var(--ink-soft)}
+.report-sheet .r-sign .line{margin-top:36px;border-top:1px solid var(--ink-faint);padding-top:6px;width:200px}
+.report-sheet .r-foot{margin-top:28px;font-size:11px;color:var(--ink-faint);text-align:center}
+
+/* ===== Chip checkboxes (กรอกน้อย ติ๊กเอา) ===== */
+.chk-chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:4px}
+.chk-chips label{margin:0;font-weight:500;font-size:13px;color:var(--ink-soft);border:1px solid var(--line);border-radius:99px;padding:6px 14px;cursor:pointer;background:var(--paper-2);transition:all .15s;user-select:none}
+.chk-chips label:hover{border-color:var(--gold)}
+.chk-chips input{display:none}
+.chk-chips label:has(input:checked){background:var(--ink);color:var(--paper-2);border-color:var(--ink)}
+.chk-chips.gold label:has(input:checked){background:var(--gold);border-color:var(--gold)}
+
+/* ===== Fengshui timeline ===== */
+.fs-timeline{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+.fs-step{flex:1;min-width:120px;border:1px solid var(--line);border-radius:12px;padding:10px 14px;background:var(--paper)}
+.fs-step b{display:block;font-size:13px}
+.fs-step span{font-size:12px;color:var(--ink-soft)}
+.fs-step.done{border-color:var(--green);background:var(--green-soft)}
+.fs-step.due{border-color:var(--red);background:var(--red-soft)}
+.fs-step.soon{border-color:var(--amber);background:var(--amber-soft)}
+
+/* ===== Loading / toast ===== */
+.spinner{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;vertical-align:-2px}
+.btn:not(.primary):not(.gold) .spinner{border-color:var(--line);border-top-color:var(--gold)}
+@keyframes spin{to{transform:rotate(360deg)}}
+#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--paper-2);padding:10px 20px;border-radius:99px;font-size:13.5px;opacity:0;pointer-events:none;transition:opacity .25s;z-index:99}
+#toast.show{opacity:1}
+
+/* ===== Collapsible sections (ลดความรก กรอกเท่าที่จำเป็น) ===== */
+details.collap{border:1px solid var(--line-soft);border-radius:12px;padding:0 14px;margin-bottom:14px;background:var(--paper)}
+details.collap summary{cursor:pointer;padding:11px 0;font-size:13px;font-weight:600;color:var(--ink-soft);list-style:none;user-select:none}
+details.collap summary::-webkit-details-marker{display:none}
+details.collap summary::before{content:'▸  ';color:var(--gold)}
+details.collap[open] summary::before{content:'▾  '}
+details.collap .inner{padding:4px 0 10px}
+
+/* ===== Responsive: bottom tab bar ===== */
+@media (max-width:820px){
+  .app{flex-direction:column}
+  .sidebar{position:fixed;bottom:0;left:0;right:0;top:auto;width:100%;height:auto;z-index:40;
+    flex-direction:row;justify-content:space-around;align-items:stretch;gap:0;
+    padding:6px 4px calc(8px + env(safe-area-inset-bottom));
+    border-right:none;border-top:1px solid var(--line);box-shadow:0 -4px 16px rgba(38,36,31,.06)}
+  .brand,.sidebar-foot{display:none}
+  .nav-btn{flex:1;flex-direction:column;align-items:center;gap:2px;padding:6px 2px;font-size:10.5px;border-radius:10px}
+  .nav-btn .ico{font-size:19px;line-height:1.2}
+  .nav-btn .lbl{font-size:10px;font-weight:600;letter-spacing:0}
+  .nav-btn .badge{position:absolute;top:0;right:calc(50% - 22px);margin-left:0;font-size:10px;padding:0 6px}
+  .main{padding:20px 16px 120px}
+  .page-head h2{font-size:24px}
+  .head-actions{width:100%}
+  .head-actions .btn{flex:1;justify-content:center}
+  .grid2,.grid3{grid-template-columns:1fr}
+  .kv{grid-template-columns:1fr}
+  .kv dt{margin-top:6px}
+  .report-sheet{padding:28px 20px}
+}
+
+/* ===== Print (A4 report export) ===== */
+@media print{
+  body{background:#fff}
+  .sidebar,.page-head,.no-print,#toast{display:none!important}
+  .main{padding:0;max-width:none}
+  .report-sheet{border:none;box-shadow:none;max-width:none;padding:10mm 6mm}
+  @page{size:A4;margin:14mm}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar no-print">
+    <div class="brand"><h1 id="brandName">BankTarot</h1><span>Private Advisor OS</span></div>
+    <button class="nav-btn active" data-view="today" onclick="showView('today')"><span class="ico">☀️</span><span class="lbl">Today</span><span class="badge" id="alertBadge" style="display:none">0</span></button>
+    <button class="nav-btn" data-view="clients" onclick="showView('clients')"><span class="ico">👤</span><span class="lbl">Clients</span></button>
+    <button class="nav-btn" data-view="sessions" onclick="showView('sessions')"><span class="ico">🗂️</span><span class="lbl">Sessions</span></button>
+    <button class="nav-btn" data-view="fengshui" onclick="showView('fengshui')"><span class="ico">🧭</span><span class="lbl">Fengshui</span></button>
+    <button class="nav-btn" data-view="reports" onclick="showView('reports')"><span class="ico">📄</span><span class="lbl">Reports</span></button>
+    <button class="nav-btn" data-view="settings" onclick="showView('settings')"><span class="ico">⚙️</span><span class="lbl">Settings</span></button>
+    <div class="sidebar-foot">ข้อมูลลูกดวงเป็นความลับ<br>ระบบนี้ใช้ภายในเท่านั้น — ไม่แชร์ข้อมูลลูกค้าออกภายนอก</div>
+  </aside>
+
+  <main class="main">
+
+    <!-- ============ TODAY ============ -->
+    <section id="view-today">
+      <div class="page-head">
+        <div><h2>Today Alerts</h2><p id="todayDate"></p></div>
+        <div class="head-actions">
+          <button class="btn primary" onclick="runAlertScan(true)">🔄 Run Daily Alert Scan</button>
+        </div>
+      </div>
+      <div class="today-summary" id="todayStats"></div>
+      <div class="card panel">
+        <div class="section-title">📋 งานของฉัน — เลขาช่วยจำ</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px">
+          <input type="text" id="taskText" placeholder="พิมพ์งานที่ต้องทำ เช่น โทรคอนเฟิร์มคิวคุณเมย์" style="flex:1;min-width:180px">
+          <input type="date" id="taskDate" style="max-width:150px">
+          <button class="btn primary sm" onclick="addTask()">＋ เพิ่ม</button>
+        </div>
+        <div id="taskList"></div>
+      </div>
+      <div id="alertList"></div>
+    </section>
+
+    <!-- ============ CLIENTS ============ -->
+    <section id="view-clients" style="display:none">
+      <div class="page-head">
+        <div><h2>Clients</h2><p>ลูกดวงทั้งหมดในความดูแล</p></div>
+        <div class="head-actions"><button class="btn primary" onclick="openClientForm()">＋ Add Client</button></div>
+      </div>
+      <div class="toolbar">
+        <input type="search" id="clientSearch" placeholder="ค้นหาชื่อ ชื่อเล่น เบอร์ LINE…" oninput="renderClients()">
+        <select id="filterService" onchange="renderClients()" style="width:140px">
+          <option value="">ทุกบริการ</option><option value="tarot">🔮 ดูดวง</option><option value="fengshui">🧭 ฮวงจุ้ย</option>
+        </select>
+        <select id="filterLevel" onchange="renderClients()" style="width:150px">
+          <option value="">ทุกระดับ</option><option value="vip">VIP</option><option value="regular">Regular</option><option value="new">New</option>
+        </select>
+        <select id="filterTag" onchange="renderClients()" style="width:160px"><option value="">ทุก Tag</option></select>
+        <select id="filterStatus" onchange="renderClients()" style="width:140px">
+          <option value="active">Active</option><option value="inactive">Inactive</option><option value="archived">Archived</option><option value="all">ทั้งหมด</option>
+        </select>
+      </div>
+      <div class="client-grid" id="clientGrid"></div>
+    </section>
+
+    <!-- ============ CLIENT PROFILE ============ -->
+    <section id="view-profile" style="display:none"></section>
+
+    <!-- ============ SESSIONS ============ -->
+    <section id="view-sessions" style="display:none">
+      <div class="page-head">
+        <div><h2>Sessions</h2><p>บันทึกการดูและให้คำปรึกษาแต่ละครั้ง</p></div>
+        <div class="head-actions"><button class="btn primary" onclick="openSessionForm()">＋ New Session</button></div>
+      </div>
+      <div id="sessionList"></div>
+    </section>
+
+    <!-- ============ FENGSHUI ============ -->
+    <section id="view-fengshui" style="display:none">
+      <div class="page-head">
+        <div><h2>Fengshui</h2><p>ติดตามผลลูกค้าหลังจัดฮวงจุ้ย — รอบ 1 / 3 / 6 เดือน</p></div>
+        <div class="head-actions"><button class="btn primary" onclick="openSessionForm(null,null,'fengshui')">＋ งานฮวงจุ้ยใหม่</button></div>
+      </div>
+      <div id="fengshuiList"></div>
+    </section>
+
+    <!-- ============ SESSION FORM ============ -->
+    <section id="view-sessionform" style="display:none"></section>
+
+    <!-- ============ REPORTS ============ -->
+    <section id="view-reports" style="display:none">
+      <div class="page-head">
+        <div><h2>Reports</h2><p>รายงานที่สร้างจากแต่ละ Session</p></div>
+      </div>
+      <div id="reportList"></div>
+    </section>
+
+    <!-- ============ REPORT PREVIEW ============ -->
+    <section id="view-reportpreview" style="display:none">
+      <div class="page-head no-print">
+        <div><h2>Report Preview</h2><p>ตรวจก่อนส่งให้ลูกค้า</p></div>
+        <div class="head-actions">
+          <button class="btn ghost" onclick="showView('reports')">← กลับ</button>
+          <button class="btn gold" onclick="window.print()">🖨️ Export PDF</button>
+          <button class="btn" id="markSentBtn" onclick="markReportSent()">✓ Mark as Sent</button>
+        </div>
+      </div>
+      <div id="reportSheet"></div>
+    </section>
+
+    <!-- ============ SETTINGS ============ -->
+    <section id="view-settings" style="display:none">
+      <div class="page-head"><div><h2>Settings</h2><p>ตั้งค่าแบรนด์และพฤติกรรมของระบบ</p></div></div>
+      <div class="card panel" style="max-width:620px">
+        <div class="grid2">
+          <div class="field"><label>Brand name</label><input type="text" id="setBrand"></div>
+          <div class="field"><label>Advisor name</label><input type="text" id="setAdvisor"></div>
+        </div>
+        <div class="field"><label>Report footer text</label><input type="text" id="setFooter"></div>
+        <div class="grid3">
+          <div class="field"><label>Default follow-up (วัน)</label><input type="number" id="setFollowDays" min="1"></div>
+          <div class="field"><label>Alert scan window (วัน)</label>
+            <select id="setScanWindow"><option value="14">14</option><option value="30">30</option></select></div>
+          <div class="field"><label>Message tone</label>
+            <select id="setTone"><option value="warm">Warm</option><option value="professional">Professional</option><option value="premium">Premium</option><option value="direct">Direct</option></select></div>
+        </div>
+        <div class="grid2">
+          <div class="field"><label>🎯 เป้ารายได้/เดือน (บาท)</label><input type="number" id="setTarget" min="0" placeholder="100000"></div>
+          <div class="field"><label>🧭 เป้าเคสฮวงจุ้ย/เดือน</label><input type="number" id="setFsTarget" min="0" placeholder="4"></div>
+        </div>
+        <div class="field"><label>Webhook แจ้งเตือน (ขั้นสูง — ไม่บังคับ)</label>
+          <input type="text" id="setWebhook" placeholder="วาง URL จาก Make / Zapier / ระบบอัตโนมัติอื่นๆ">
+          <p style="font-size:12px;color:var(--ink-faint);margin-top:5px">ทุกครั้งที่กด Run Daily Alert Scan ระบบจะส่งสรุป alert ไปที่ URL นี้ • ถ้าไม่ตั้ง ใช้ Telegram ด้านล่างแทนได้</p></div>
+        <div class="modal-foot" style="justify-content:flex-start"><button class="btn primary" onclick="saveSettings()">บันทึกการตั้งค่า</button></div>
+      </div>
+      <div class="card panel" style="max-width:620px">
+        <div class="section-title">📨 Telegram แจ้งเตือน (ง่ายสุด — ใช้ได้ทันที)</div>
+        <p style="font-size:13px;color:var(--ink-soft);margin-bottom:12px">
+          1) ใน Telegram ทัก <b>@BotFather</b> พิมพ์ /newbot ตั้งชื่อ → ได้ Token มาวางด้านล่าง<br>
+          2) ทักบอทตัวใหม่ของคุณ 1 ข้อความ (อะไรก็ได้)<br>
+          3) กดปุ่ม "ค้นหา Chat ID" → บันทึก → ทดสอบส่ง — จบ ทุกครั้งที่สแกน สรุปจะเด้งเข้า Telegram เอง</p>
+        <div class="field"><label>Bot Token</label><input type="text" id="setTgToken" placeholder="123456:ABC-DEF..."></div>
+        <div class="field"><label>Chat ID</label>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <input type="text" id="setTgChat" placeholder="กดปุ่มค้นหาได้เลย" style="flex:1;min-width:160px">
+            <button class="btn sm" onclick="findTgChat()">🔍 ค้นหา Chat ID</button>
+            <button class="btn sm gold" onclick="testTelegram()">ทดสอบส่ง</button>
+          </div></div>
+        <div class="modal-foot" style="justify-content:flex-start"><button class="btn primary" onclick="saveSettings()">บันทึกการตั้งค่า</button></div>
+      </div>
+      <div class="card panel" style="max-width:620px">
+        <div class="section-title">ข้อมูล & การย้ายระบบ</div>
+        <p style="font-size:13px;color:var(--ink-soft);margin-bottom:12px">โหมดปัจจุบัน: <b id="modeLabel">—</b> • ใช้ Export เพื่อสำรองข้อมูล หรือย้ายจากเวอร์ชันทดลองขึ้นระบบ Cloud</p>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <button class="btn" onclick="exportData()">⬇️ Export ข้อมูล (JSON)</button>
+          <button class="btn" onclick="importData()">⬆️ Import ข้อมูล</button>
+        </div>
+      </div>
+      <div class="card panel" style="max-width:620px">
+        <div class="section-title">Privacy</div>
+        <p style="font-size:13.5px;color:var(--ink-soft)">ข้อมูลลูกดวงทั้งหมดเก็บในพื้นที่ส่วนตัวของระบบนี้เท่านั้น การลบลูกค้าจะใช้วิธี Archive แทนการลบถาวร เพื่อป้องกันข้อมูลสูญหายโดยไม่ตั้งใจ และระบบจะไม่บันทึกข้อมูลอ่อนไหวลง log ใดๆ<br><span style="color:var(--ink-faint)">TODO: เพิ่มระบบ login/auth ก่อนใช้งานร่วมกับทีม</span></p>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- ============ CLIENT FORM MODAL ============ -->
+<div class="overlay" id="clientModal">
+  <div class="modal">
+    <h3 id="clientModalTitle">เพิ่มลูกค้าใหม่</h3>
+    <input type="hidden" id="cf_id">
+    <div class="grid2">
+      <div class="field"><label>ชื่อ-นามสกุล *</label><input type="text" id="cf_fullName" placeholder="กรอกแค่นี้ก็บันทึกได้"></div>
+      <div class="field"><label>ชื่อเล่น</label><input type="text" id="cf_nickname"></div>
+      <div class="field"><label>LINE ID</label><input type="text" id="cf_lineId"></div>
+      <div class="field"><label>เบอร์โทร</label><input type="tel" id="cf_phone"></div>
+    </div>
+    <div class="grid3">
+      <div class="field"><label>บริการ</label>
+        <select id="cf_service" onchange="toggleCaseTypeField()"><option value="tarot">🔮 ดูดวง</option><option value="fengshui">🧭 ฮวงจุ้ย</option></select></div>
+      <div class="field" id="cf_clientTypeField"><label>ประเภทเคส (สายดูดวง)</label>
+        <select id="cf_clientType"><option value="business">Business</option><option value="love">Love</option><option value="money">Money</option><option value="career">Career</option><option value="life">Life</option></select></div>
+      <div class="field"><label>ระดับลูกค้า</label>
+        <select id="cf_clientLevel"><option value="new">New</option><option value="regular">Regular</option><option value="vip">VIP</option></select></div>
+    </div>
+    <div class="field"><label>เรื่องหลักที่กังวล</label><input type="text" id="cf_mainConcern" placeholder="ประโยคเดียวสั้นๆ เช่น ขยายธุรกิจ / เปลี่ยนงาน"></div>
+    <div class="field"><label>รู้จักผ่านช่องทาง</label><div class="chk-chips" id="cf_sourceChips"></div></div>
+    <div class="field"><label>Tags — แตะเลือกได้เลย</label>
+      <div class="chk-chips" id="cf_tagChips"></div>
+      <input type="text" id="cf_tags" placeholder="หรือพิมพ์เพิ่มเอง คั่นด้วย ," style="margin-top:8px">
+    </div>
+    <details class="collap"><summary>ข้อมูลดวงกำเนิด (กรอกทีหลังได้)</summary><div class="inner">
+      <div class="grid3">
+        <div class="field"><label>วันเกิด</label><input type="date" id="cf_birthDate"></div>
+        <div class="field"><label>เวลาเกิด</label><input type="time" id="cf_birthTime"></div>
+        <div class="field"><label>สถานที่เกิด</label><input type="text" id="cf_birthPlace"></div>
+      </div>
+      <div class="field"><label>เพศ (ไม่บังคับ)</label>
+        <select id="cf_gender"><option value="">ไม่ระบุ</option><option value="ชาย">ชาย</option><option value="หญิง">หญิง</option><option value="อื่นๆ">อื่นๆ</option></select></div>
+    </div></details>
+    <details class="collap"><summary>บริบทชีวิต / ธุรกิจ (กรอกทีหลังได้)</summary><div class="inner">
+      <div class="field"><label>Email</label><input type="email" id="cf_email"></div>
+      <div class="field"><label>สถานการณ์ชีวิตตอนนี้</label><textarea class="bul" id="cf_currentLifeContext" rows="2" placeholder="• พิมพ์เป็นข้อสั้นๆ"></textarea></div>
+      <div class="field"><label>บริบทธุรกิจ</label><textarea class="bul" id="cf_businessContext" rows="2" placeholder="• ธุรกิจอะไร ขนาดไหน"></textarea></div>
+      <div class="field"><label>โน้ตเพิ่มเติม</label><textarea class="bul" id="cf_notes" rows="2"></textarea></div>
+      <div class="grid2">
+        <div class="field"><label>วันนัด follow-up ถัดไป</label><input type="date" id="cf_nextFollowUpDate"></div>
+        <div class="field"><label>สถานะ</label>
+          <select id="cf_status"><option value="active">Active</option><option value="inactive">Inactive</option><option value="archived">Archived</option></select></div>
+      </div>
+    </div></details>
+    <div class="modal-foot">
+      <button class="btn ghost" onclick="closeModal('clientModal')">ยกเลิก</button>
+      <button class="btn primary" onclick="saveClient()">บันทึกลูกค้า</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ MESSAGE MODAL ============ -->
+<div class="overlay" id="msgModal">
+  <div class="modal">
+    <h3>ข้อความสำหรับส่งลูกค้า</h3>
+    <div class="msg-box" id="msgBody">กำลังเรียบเรียงข้อความ…</div>
+    <div class="modal-foot">
+      <button class="btn ghost" onclick="closeModal('msgModal')">ปิด</button>
+      <button class="btn" onclick="regenMessage()">🔄 สร้างใหม่</button>
+      <button class="btn primary" onclick="copyMessage()">📋 คัดลอก</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ DONE / OUTCOME MODAL ============ -->
+<div class="overlay" id="doneModal">
+  <div class="modal" style="max-width:480px">
+    <h3 id="doneTitle">บันทึกผลการติดตาม</h3>
+    <div class="field"><label>ผลลัพธ์ — แตะเลือก</label><div class="chk-chips" id="doneChips"></div></div>
+    <div class="field"><label>โน้ตสั้นๆ (ไม่บังคับ)</label><input type="text" id="doneNote" placeholder="เช่น ลูกค้าบอกยอดขายเริ่มขยับ"></div>
+    <div class="modal-foot">
+      <button class="btn ghost" onclick="closeModal('doneModal')">ยกเลิก</button>
+      <button class="btn primary" onclick="saveDone()">บันทึก</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+<script>
+/* ================= STATE & STORAGE ================= */
+const DB_KEY='btos:data:v1';
+let state={clients:[],sessions:[],reports:[],alerts:[],messages:[],contacts:[],tasks:[],settings:{
+  brand:'BankTarot',advisor:'อ.แบงค์ ธีรเดช',footer:'รายงานฉบับนี้จัดทำเฉพาะบุคคล กรุณาไม่เผยแพร่ต่อสาธารณะ • BankTarot Private Advisory',
+  followDays:30,scanWindow:14,tone:'warm'}};
+let currentClientId=null,currentSessionId=null,currentReportId=null,msgContext=null;
+let MODE='local'; // 'cloud' เมื่อรันบน Vercel + Supabase
+
+function getToken(){try{return localStorage.getItem('btos_token')||'';}catch(e){return window.__tk||'';}}
+function setToken(t){try{localStorage.setItem('btos_token',t);}catch(e){window.__tk=t;}}
+function cloudFetch(path,opts={}){
+  opts.headers={'Content-Type':'application/json',...(opts.headers||{}),'x-app-token':getToken()};
+  return fetch(path,opts);
+}
+function applyData(d){state={...state,...d,settings:{...state.settings,...(d.settings||{})}};}
+
+async function loadState(){
+  // 1) โหมด cloud (เมื่อ deploy บน Vercel)
+  try{
+    let r=await cloudFetch('/api/state');
+    if(r.status===401){
+      const t=prompt('ใส่รหัสเข้าระบบ (APP_TOKEN ที่ตั้งไว้ใน Vercel)');
+      if(t){setToken(t);r=await cloudFetch('/api/state');}
+    }
+    if(r&&r.ok){
+      const j=await r.json();MODE='cloud';
+      if(j&&j.data){applyData(j.data);return true;}
+      return false; // cloud ว่าง — จะ seed ให้
+    }
+  }catch(e){/* ไม่ได้อยู่บน cloud */}
+  // 2) โหมด artifact (window.storage)
+  try{const r=await window.storage.get(DB_KEY);if(r&&r.value){applyData(JSON.parse(r.value));return true;}}
+  catch(e){/* ยังไม่มีข้อมูล */}
+  return false;
+}
+let saveTimer=null;
+function saveState(){clearTimeout(saveTimer);saveTimer=setTimeout(async()=>{
+  try{
+    if(MODE==='cloud'){
+      const r=await cloudFetch('/api/state',{method:'PUT',body:JSON.stringify({data:state})});
+      if(!r.ok)throw new Error('cloud save '+r.status);
+    }else{
+      await window.storage.set(DB_KEY,JSON.stringify(state));
+    }
+  }catch(e){toast('บันทึกข้อมูลไม่สำเร็จ ลองอีกครั้ง');}
+},300);}
+
+/* ================= HELPERS ================= */
+const $=id=>document.getElementById(id);
+const uid=()=> 'id'+Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+const esc=s=>(s??'').toString().replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+const todayStr=()=>new Date().toISOString().slice(0,10);
+function fmtDate(d){if(!d)return '—';const dt=new Date(d+'T00:00:00');return dt.toLocaleDateString('th-TH',{day:'numeric',month:'short',year:'numeric'});}
+function daysBetween(a,b){return Math.round((new Date(b+'T00:00:00')-new Date(a+'T00:00:00'))/86400000);}
+function toast(t){const el=$('toast');el.textContent=t;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),2400);}
+function closeModal(id){$(id).classList.remove('open');}
+function clientOf(id){return state.clients.find(c=>c.id===id);}
+function clientName(id){const c=clientOf(id);return c?(c.nickname?c.nickname+' ('+c.fullName+')':c.fullName):'—';}
+const TYPE_TH={business:'ธุรกิจ',love:'ความรัก',money:'การเงิน',career:'การงาน',life:'ชีวิต',fengshui:'ฮวงจุ้ย',vip:'VIP'};
+const SERVICE_TH={tarot:'🔮 ดูดวง',fengshui:'🧭 ฮวงจุ้ย'};
+const SESSION_TH={tarot:'ไพ่ทาโรต์',business_consult:'ที่ปรึกษาธุรกิจ',astrology:'โหราศาสตร์',bazi:'ดวงจีน Bazi',saju:'ซาจู',thai_astrology:'โหราศาสตร์ไทย',western_astrology:'โหราศาสตร์ตะวันตก',mixed:'ผสมหลายศาสตร์',fengshui:'งานฮวงจุ้ย'};
+const ALERT_TH={follow_up_due:'ถึงกำหนด Follow-up',prediction_window_starting:'ใกล้ช่วงเวลาที่เคยทำนาย',life_event_due:'เหตุการณ์สำคัญของลูกค้า',birthday_cycle:'ใกล้วันเกิด',vip_silence:'VIP เงียบหายไปนาน',risk_pattern:'พบ Pattern ความเสี่ยง',opportunity_window:'ช่วงโอกาสที่ควรติดตาม',fengshui_followup:'ครบรอบติดตามฮวงจุ้ย'};
+const FS_PLACES=['บ้าน','คอนโด','ร้านค้า','ออฟฟิศ','โรงงาน','ที่ดิน'];
+const FS_ADJUST=['ประตู/ทางเข้า','โต๊ะทำงาน','จุดการเงิน/โต๊ะเก็บเงิน','ห้องนอน','ครัว','น้ำ (ตู้ปลา/น้ำพุ)','สี/ของตกแต่ง','ป้าย/โลโก้','ให้ฤกษ์'];
+const FS_GOALS=['การเงิน','ค้าขาย/ลูกค้า','การงาน','สุขภาพ','ความสัมพันธ์','บริวาร/ทีมงาน','โชคลาภ'];
+function addMonths(dateStr,m){const d=new Date(dateStr+'T00:00:00');d.setMonth(d.getMonth()+m);return d.toISOString().slice(0,10);}
+
+/* ================= NAVIGATION ================= */
+function showView(name){
+  document.querySelectorAll('main > section').forEach(s=>s.style.display='none');
+  $('view-'+name).style.display='block';
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.toggle('active',b.dataset.view===name||(name==='profile'&&b.dataset.view==='clients')||(name==='sessionform'&&b.dataset.view==='sessions')||(name==='reportpreview'&&b.dataset.view==='reports')));
+  if(name==='today')renderToday();
+  if(name==='clients')renderClients();
+  if(name==='sessions')renderSessions();
+  if(name==='fengshui')renderFengshui();
+  if(name==='reports')renderReports();
+  if(name==='settings')fillSettings();
+  window.scrollTo(0,0);
+}
+
+/* ================= ALERT ENGINE ================= */
+function computeAlerts(){
+  const t=todayStr();const win=Number(state.settings.scanWindow)||14;
+  const cands=[];
+  const activeClients=state.clients.filter(c=>c.status==='active');
+  for(const c of activeClients){
+    // 1. follow_up_due
+    if(c.nextFollowUpDate&&daysBetween(t,c.nextFollowUpDate)<=0)
+      cands.push(mk(c,'follow_up_due','ถึงกำหนดวันนัดติดตามผล ('+fmtDate(c.nextFollowUpDate)+')','ทักไปสอบถามความคืบหน้าเรื่อง '+(c.mainConcern||'ที่เคยปรึกษาไว้')));
+    // 4. birthday_cycle
+    if(c.birthDate){
+      const bd=new Date(c.birthDate+'T00:00:00');const now=new Date(t+'T00:00:00');
+      let next=new Date(now.getFullYear(),bd.getMonth(),bd.getDate());
+      if(next<now)next=new Date(now.getFullYear()+1,bd.getMonth(),bd.getDate());
+      const dd=Math.round((next-now)/86400000);
+      if(dd<=30)cands.push(mk(c,'birthday_cycle','วันเกิดของลูกค้าอีก '+dd+' วัน ('+next.toLocaleDateString('th-TH',{day:'numeric',month:'short'})+')',dd<=7?'ส่งคำอวยพร + แนะนำดูดวงปีใหม่ของชีวิต':'เตรียมข้อความอวยพร และชวนอัปเดตดวงรอบปีเกิด',{birthdayDays:dd}));
+    }
+    // 5. vip_silence
+    if(c.clientLevel==='vip'&&c.lastSessionDate){
+      const gap=daysBetween(c.lastSessionDate,t);
+      if(gap>=60)cands.push(mk(c,'vip_silence','ลูกค้า VIP ไม่ได้ติดต่อมา '+gap+' วัน','ทักไปถามไถ่สารทุกข์สุกดิบ ไม่ต้องขายอะไร'));
+    }
+  }
+  const sessionsByClient={};
+  for(const s of state.sessions){(sessionsByClient[s.clientId]=sessionsByClient[s.clientId]||[]).push(s);}
+  for(const s of state.sessions){
+    const c=clientOf(s.clientId);if(!c||c.status!=='active')continue;
+    // 2. prediction_window_starting
+    if(s.predictionStartDate){
+      const dd=daysBetween(t,s.predictionStartDate);
+      if(dd>=0&&dd<=win)cands.push(mk(c,'prediction_window_starting','อีก '+dd+' วันจะเข้าช่วงเวลาที่เคยทำนายไว้ ('+fmtDate(s.predictionStartDate)+(s.predictionEndDate?' – '+fmtDate(s.predictionEndDate):'')+') เรื่อง: '+(s.mainQuestion||'—'),'ทักไปเตือนล่วงหน้า พร้อมย้ำคำแนะนำที่ให้ไว้',{sessionId:s.id}));
+      else if(dd<0&&s.predictionEndDate&&daysBetween(t,s.predictionEndDate)>=0)
+        cands.push(mk(c,'prediction_window_starting','ตอนนี้อยู่ในช่วงเวลาที่เคยทำนายไว้ (ถึง '+fmtDate(s.predictionEndDate)+') เรื่อง: '+(s.mainQuestion||'—'),'ติดตามสถานการณ์ใกล้ชิด สอบถามความเปลี่ยนแปลง',{sessionId:s.id}));
+    }
+    // 3. life_event_due — follow-up ระดับ session
+    if(s.followUpNeeded&&s.followUpDate&&daysBetween(t,s.followUpDate)<=0)
+      cands.push(mk(c,'life_event_due','ถึงกำหนดติดตามเหตุการณ์จาก session วันที่ '+fmtDate(s.sessionDate)+': '+(s.mainQuestion||'—'),'สอบถามผลลัพธ์ตาม Action Plan ที่วางไว้',{sessionId:s.id}));
+    // 8. fengshui_followup — รอบ 1 / 3 / 6 เดือนหลังจัดฮวงจุ้ย
+    if(s.sessionType==='fengshui'&&s.fengshui&&s.sessionDate){
+      for(const m of(s.fengshui.checkpoints||[])){
+        if(s.fengshui.done&&s.fengshui.done[m])continue;
+        const due=addMonths(s.sessionDate,m);
+        const dd=daysBetween(t,due);
+        if(dd<=7){ // แจ้งล่วงหน้าเล็กน้อย + ค้างไว้จนกว่าจะกดว่าติดตามแล้ว
+          const when=dd<0?'(เลยกำหนดมา '+(-dd)+' วัน)':dd===0?'(วันนี้)':'(อีก '+dd+' วัน)';
+          const goals=(s.fengshui.goals||[]).join(', ')||'ผลโดยรวม';
+          cands.push(mk(c,'fengshui_followup','ครบ '+m+' เดือนหลังจัดฮวงจุ้ย'+(s.fengshui.place?' '+s.fengshui.place:'')+' '+when,'สอบถามความเปลี่ยนแปลงด้าน'+goals+' หลังการปรับ',{sessionId:s.id,checkpoint:m}));
+        }
+      }
+    }
+    // 7. opportunity_window
+    if(s.opportunityLevel==='high'&&s.predictionStartDate){
+      const dd=daysBetween(t,s.predictionStartDate);
+      if(dd>=0&&dd<=win)cands.push(mk(c,'opportunity_window','มีช่วงโอกาสสำคัญ (Opportunity สูง) กำลังจะมาถึงใน '+dd+' วัน','ส่งข้อความชวนเตรียมตัวรับจังหวะดี',{sessionId:s.id}));
+    }
+  }
+  // 6. risk_pattern
+  for(const[cid,list]of Object.entries(sessionsByClient)){
+    const c=clientOf(cid);if(!c||c.status!=='active')continue;
+    const highRisk=list.filter(s=>s.riskLevel==='high').length;
+    const qs=list.map(s=>(s.mainQuestion||'').trim().toLowerCase()).filter(Boolean);
+    const repeated=qs.length>=2&&new Set(qs).size<qs.length;
+    if(highRisk>=1&&list.length>=1&&(highRisk>=2||repeated))
+      cands.push(mk(c,'risk_pattern',repeated?'ลูกค้าถามเรื่องเดิมซ้ำหลายครั้ง และมีระดับความเสี่ยงสูง':'มี session ระดับความเสี่ยงสูงซ้ำหลายครั้ง','ดูแลใกล้ชิด อาจนัดคุยเชิงลึกเพื่อคลี่ปมที่แท้จริง'));
+  }
+  return cands;
+
+  function mk(c,type,reason,action,extra={}){
+    const key=type+':'+c.id+(extra.sessionId?':'+extra.sessionId:'');
+    return{key,type,clientId:c.id,reason,action,...extra,score:score(c,type,extra)};
+  }
+  function score(c,type,extra){
+    let s=0;const t2=todayStr();
+    if(type==='follow_up_due'||type==='life_event_due')s+=40;
+    if(type==='prediction_window_starting'||type==='opportunity_window')s+=30;
+    if(type==='vip_silence')s+=25;
+    if(type==='risk_pattern')s+=30;
+    if(type==='fengshui_followup')s+=35;
+    if(type==='birthday_cycle')s+=(extra.birthdayDays<=7?20:10);
+    if(c.clientLevel==='vip')s+=20;
+    const lastHigh=state.sessions.some(x=>x.clientId===c.id&&x.riskLevel==='high');
+    if(lastHigh)s+=20;
+    if(c.lastSessionDate&&daysBetween(c.lastSessionDate,t2)>90)s+=15;
+    if(c.businessContext)s+=10;
+    return Math.min(100,s);
+  }
+}
+function priorityOf(score){return score>=80?'urgent':score>=50?'watch':'normal';}
+
+function runAlertScan(manual){
+  const cands=computeAlerts();
+  const doneKeys=new Set(state.alerts.filter(a=>a.status==='done').map(a=>a.key));
+  const existing=Object.fromEntries(state.alerts.map(a=>[a.key,a]));
+  const fresh=[];
+  for(const c of cands){
+    if(doneKeys.has(c.key))continue;
+    const old=existing[c.key];
+    if(old&&old.status==='snoozed'&&old.snoozeUntil>todayStr()){fresh.push({...old,...c,status:'snoozed',snoozeUntil:old.snoozeUntil});continue;}
+    fresh.push({id:old?.id||uid(),status:'open',createdAt:todayStr(),...c});
+  }
+  // เก็บ done ของวันนี้ไว้ให้เห็น
+  const doneToday=state.alerts.filter(a=>a.status==='done'&&a.doneAt===todayStr());
+  state.alerts=[...fresh,...doneToday];
+  saveState();renderToday();
+  if(manual){toast('สแกนเสร็จ พบ '+fresh.filter(a=>a.status==='open').length+' รายการที่ควรติดตาม');pushWebhook();if(state.settings.telegramBotToken)pushTelegram();}
+}
+
+/* ================= TODAY VIEW ================= */
+function renderToday(){
+  $('todayDate').textContent='วันนี้ควรดูแลลูกค้าคนไหน และเพราะอะไร • '+new Date().toLocaleDateString('th-TH',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  renderTasks();
+  const open=state.alerts.filter(a=>a.status==='open'||(a.status==='snoozed'&&a.snoozeUntil<=todayStr()));
+  open.sort((a,b)=>b.score-a.score);
+  const done=state.alerts.filter(a=>a.status==='done'&&a.doneAt===todayStr());
+  const badge=$('alertBadge');badge.style.display=open.length?'inline-block':'none';badge.textContent=open.length;
+  const u=open.filter(a=>priorityOf(a.score)==='urgent').length,w=open.filter(a=>priorityOf(a.score)==='watch').length;
+  const month=todayStr().slice(0,7);
+  const rev=state.sessions.filter(s=>(s.sessionDate||'').startsWith(month)&&s.paidStatus!=='unpaid').reduce((t2,s)=>t2+(Number(s.fee)||0),0);
+  const owed=state.sessions.filter(s=>s.paidStatus==='unpaid').reduce((t2,s)=>t2+(Number(s.fee)||0),0);
+  const target=Number(state.settings.monthlyTarget)||100000;
+  const fsTarget=Number(state.settings.fsCaseTarget)||4;
+  const fsCases=state.sessions.filter(s=>(s.sessionDate||'').startsWith(month)&&s.sessionType==='fengshui').length;
+  const pct=Math.min(100,Math.round(rev/target*100));
+  $('todayStats').innerHTML=`
+    <div class="stat"><b style="color:var(--red)">${u}</b><span>Urgent — ควรทักวันนี้</span></div>
+    <div class="stat"><b style="color:var(--amber)">${w}</b><span>Watch — เฝ้าดูใกล้ชิด</span></div>
+    <div class="stat"><b style="color:var(--green)">${done.length}</b><span>ดูแลแล้ววันนี้</span></div>
+    <div class="stat"><b style="color:var(--gold-deep)">฿${rev.toLocaleString()}</b><span>เป้า ฿${target.toLocaleString()} (${pct}%)${owed?' • ค้าง ฿'+owed.toLocaleString():''}</span></div>
+    <div class="stat"><b style="color:${fsCases>=fsTarget?'var(--green)':'var(--ink)'}">${fsCases}/${fsTarget}</b><span>เคสฮวงจุ้ยเดือนนี้</span></div>`;
+  const list=$('alertList');
+  if(!open.length&&!done.length){
+    list.innerHTML=`<div class="empty"><h3>ยังไม่มีการแจ้งเตือนวันนี้</h3><p>กด "Run Daily Alert Scan" เพื่อให้ระบบตรวจข้อมูลลูกค้าและ session ทั้งหมด แล้วสรุปว่าควรทักใครก่อน</p><button class="btn primary" onclick="runAlertScan(true)">🔄 Run Daily Alert Scan</button></div>`;return;
+  }
+  list.innerHTML=[...open,...done].map(a=>{
+    const p=priorityOf(a.score);const c=clientOf(a.clientId);
+    return`<div class="alert-card ${p} ${a.status==='done'?'alert-done':''}">
+      <div class="alert-top">
+        <span class="name">${esc(clientName(a.clientId))}</span>
+        ${c?.clientLevel==='vip'?'<span class="chip gold">VIP</span>':''}
+        <span class="chip ${p==='urgent'?'red':p==='watch'?'amber':'green'}">${p.toUpperCase()}</span>
+        <span class="chip">${ALERT_TH[a.type]||a.type}</span>
+        ${a.status==='done'&&a.outcome?`<span class="chip green">✓ ${esc(a.outcome)}</span>`:''}
+        <span class="score">${a.score}<span style="font-size:11px;color:var(--ink-faint)">/100</span></span>
+      </div>
+      <div class="alert-reason">📌 ${esc(a.reason)}</div>
+      <div class="alert-action">→ ${esc(a.action)}</div>
+      ${a.status==='done'?'':`<div class="alert-btns">
+        <button class="btn sm gold" onclick="openMessageModal('alert','${a.id}')">✉️ Generate Message</button>
+        <button class="btn sm" onclick="alertDone('${a.id}')">✓ Mark as Done</button>
+        <button class="btn sm ghost" onclick="alertSnooze('${a.id}')">💤 Snooze 3 วัน</button>
+        <button class="btn sm ghost" onclick="openProfile('${a.clientId}')">Open Client →</button>
+      </div>`}
+    </div>`;}).join('');
+}
+let doneCtx=null;
+const ALERT_OUTCOMES=['ทักแล้ว รอตอบ','คุยแล้วเรียบร้อย','ได้นัดดูเพิ่ม','ติดต่อไม่ได้','ข้ามรอบนี้'];
+const FS_OUTCOMES=['ดีขึ้นชัดเจน','เริ่มดีขึ้น','เท่าเดิม','แย่ลง / ต้องปรับเพิ่ม'];
+function openDoneModal(outcomes,title){
+  $('doneTitle').textContent=title;
+  $('doneChips').innerHTML=outcomes.map((o,i)=>`<label><input type="radio" name="doneOutcome" value="${esc(o)}" ${i===0?'checked':''}>${esc(o)}</label>`).join('');
+  $('doneNote').value='';
+  $('doneModal').classList.add('open');
+}
+/* ================= MY TASKS (เลขาช่วยจำ) ================= */
+function addTask(){
+  const text=$('taskText').value.trim();
+  if(!text){toast('พิมพ์งานก่อนครับ');return;}
+  state.tasks=state.tasks||[];
+  state.tasks.unshift({id:uid(),text,dueDate:$('taskDate').value||todayStr(),done:false,createdAt:todayStr()});
+  $('taskText').value='';$('taskDate').value='';
+  saveState();renderToday();toast('จดไว้แล้ว');
+}
+function toggleTask(id){
+  const t=state.tasks.find(x=>x.id===id);if(!t)return;
+  t.done=!t.done;t.doneAt=t.done?todayStr():'';
+  saveState();renderToday();
+}
+function delTask(id){
+  if(!confirm('ลบงานนี้?'))return;
+  state.tasks=state.tasks.filter(x=>x.id!==id);saveState();renderToday();
+}
+function renderTasks(){
+  const t=todayStr();const list=state.tasks||[];
+  const open=list.filter(x=>!x.done).sort((a,b)=>(a.dueDate||'').localeCompare(b.dueDate||''));
+  const doneToday=list.filter(x=>x.done&&x.doneAt===t);
+  const el=$('taskList');
+  if(!open.length&&!doneToday.length){el.innerHTML='<p style="font-size:13px;color:var(--ink-faint);margin:4px 0 0">ยังไม่มีงาน — พิมพ์ด้านบน หรือส่งข้อความหาบอท Telegram ระบบจะจดให้เอง (โหมด cloud)</p>';return;}
+  el.innerHTML=[...open,...doneToday].map(x=>{
+    const dd=x.dueDate?daysBetween(t,x.dueDate):0;
+    const chip=x.done?'<span class="chip green">✓ เสร็จแล้ว</span>':dd<0?'<span class="chip red">เลยมา '+(-dd)+' วัน</span>':dd===0?'<span class="chip amber">วันนี้</span>':'<span class="chip">อีก '+dd+' วัน</span>';
+    return`<div class="row-item">
+      <input type="checkbox" ${x.done?'checked':''} onchange="toggleTask('${x.id}')" style="width:18px;height:18px;accent-color:var(--gold)">
+      <div class="grow"><div class="title" style="${x.done?'text-decoration:line-through;color:var(--ink-faint)':''}">${esc(x.text)}</div></div>
+      ${chip}
+      <button class="btn sm ghost" onclick="delTask('${x.id}')">✕</button>
+    </div>`;}).join('');
+}
+
+function alertDone(id){
+  const a=state.alerts.find(x=>x.id===id);if(!a)return;
+  doneCtx=a.type==='fengshui_followup'?{kind:'fs-alert',alertId:id}:{kind:'alert',alertId:id};
+  openDoneModal(a.type==='fengshui_followup'?FS_OUTCOMES:ALERT_OUTCOMES,
+    a.type==='fengshui_followup'?'ผลหลังปรับฮวงจุ้ย — รอบ '+a.checkpoint+' เดือน':'บันทึกผลการติดตาม — '+clientName(a.clientId));
+}
+function markCheckpoint(sessionId,m){
+  doneCtx={kind:'fs',sessionId,m};
+  openDoneModal(FS_OUTCOMES,'ผลหลังปรับฮวงจุ้ย — รอบ '+m+' เดือน');
+}
+function logContact(clientId,topic,outcome,note){
+  state.contacts=state.contacts||[];
+  state.contacts.unshift({id:uid(),clientId,date:todayStr(),topic,outcome,note});
+}
+function saveDone(){
+  const outcome=(document.querySelector('#doneChips input:checked')||{}).value||'';
+  const note=$('doneNote').value.trim();
+  if(doneCtx.kind==='alert'||doneCtx.kind==='fs-alert'){
+    const a=state.alerts.find(x=>x.id===doneCtx.alertId);if(!a)return;
+    a.status='done';a.doneAt=todayStr();a.outcome=outcome;
+    logContact(a.clientId,ALERT_TH[a.type]||'ติดตามผล',outcome,note);
+    if(doneCtx.kind==='fs-alert'&&a.sessionId&&a.checkpoint){
+      const s=state.sessions.find(x=>x.id===a.sessionId);
+      if(s?.fengshui){
+        s.fengshui.done=s.fengshui.done||{};s.fengshui.done[a.checkpoint]=todayStr();
+        s.fengshui.results=s.fengshui.results||{};s.fengshui.results[a.checkpoint]={outcome,note,date:todayStr()};
+      }
+    }
+    saveState();closeModal('doneModal');renderToday();toast('บันทึกแล้ว — เก็บเข้าประวัติลูกค้าเรียบร้อย');
+  }else{
+    const s=state.sessions.find(x=>x.id===doneCtx.sessionId);if(!s?.fengshui)return;
+    s.fengshui.done=s.fengshui.done||{};s.fengshui.done[doneCtx.m]=todayStr();
+    s.fengshui.results=s.fengshui.results||{};s.fengshui.results[doneCtx.m]={outcome,note,date:todayStr()};
+    logContact(s.clientId,'ติดตามฮวงจุ้ยรอบ '+doneCtx.m+' เดือน',outcome,note);
+    const a=state.alerts.find(x=>x.type==='fengshui_followup'&&x.sessionId===doneCtx.sessionId&&x.checkpoint===doneCtx.m&&x.status!=='done');
+    if(a){a.status='done';a.doneAt=todayStr();a.outcome=outcome;}
+    saveState();closeModal('doneModal');renderFengshui();toast('บันทึกผลรอบ '+doneCtx.m+' เดือนแล้ว');
+  }
+}
+function alertSnooze(id){const a=state.alerts.find(x=>x.id===id);if(a){a.status='snoozed';const d=new Date();d.setDate(d.getDate()+3);a.snoozeUntil=d.toISOString().slice(0,10);saveState();renderToday();toast('เลื่อนเตือนไปอีก 3 วัน');}}
+/* ================= CLIENTS ================= */
+function renderClients(){
+  const q=($('clientSearch').value||'').toLowerCase();
+  const lv=$('filterLevel').value,tag=$('filterTag').value,st=$('filterStatus').value,svc=$('filterService').value;
+  // refresh tag options
+  const allTags=[...new Set(state.clients.flatMap(c=>c.tags||[]))];
+  const sel=$('filterTag');const cur=sel.value;
+  sel.innerHTML='<option value="">ทุก Tag</option>'+allTags.map(t=>`<option ${t===cur?'selected':''} value="${esc(t)}">${esc(t)}</option>`).join('');
+  let list=state.clients.filter(c=>st==='all'?true:c.status===st);
+  if(svc)list=list.filter(c=>(c.service||'tarot')===svc);
+  if(lv)list=list.filter(c=>c.clientLevel===lv);
+  if(tag)list=list.filter(c=>(c.tags||[]).includes(tag));
+  if(q)list=list.filter(c=>[c.fullName,c.nickname,c.phone,c.lineId,c.email,c.mainConcern].join(' ').toLowerCase().includes(q));
+  const grid=$('clientGrid');
+  if(!list.length){grid.innerHTML=`<div class="empty" style="grid-column:1/-1"><h3>ยังไม่มีลูกค้าในมุมมองนี้</h3><p>เพิ่มลูกดวงคนแรกเพื่อเริ่มเก็บประวัติ บริบทชีวิต และรอบการติดตาม</p><button class="btn primary" onclick="openClientForm()">＋ Add Client</button></div>`;return;}
+  grid.innerHTML=list.map(c=>`
+    <div class="card client-card" onclick="openProfile('${c.id}')">
+      <div class="cname">${esc(c.nickname||c.fullName)}
+        ${c.clientLevel==='vip'?'<span class="chip gold">VIP</span>':c.clientLevel==='new'?'<span class="chip green">New</span>':''}
+        ${c.status!=='active'?`<span class="chip">${c.status}</span>`:''}
+      </div>
+      <div class="cmeta">${esc(c.fullName)}${c.mainConcern?' • '+esc(c.mainConcern):''}<br>
+      ดูล่าสุด: ${fmtDate(c.lastSessionDate)} • นัดถัดไป: ${fmtDate(c.nextFollowUpDate)}</div>
+      <div class="ctags"><span class="chip gold">${SERVICE_TH[c.service||'tarot']}</span>${(c.service||'tarot')==='tarot'&&c.clientType?`<span class="chip amber">${TYPE_TH[c.clientType]||''}</span>`:''}${(c.tags||[]).slice(0,3).map(t=>`<span class="chip">${esc(t)}</span>`).join('')}</div>
+    </div>`).join('');
+}
+const COMMON_TAGS=['เจ้าของธุรกิจ','ค้าขาย/ร้านค้า','พนักงานบริษัท','ลงทุน','ความรัก/ครอบครัว','สุขภาพ','ฮวงจุ้ย'];
+const SOURCES=['LINE OA','Facebook','TikTok','แนะนำต่อ','เว็บ BankTarot','อื่นๆ'];
+function openClientForm(id){
+  const c=id?clientOf(id):null;
+  $('clientModalTitle').textContent=c?'แก้ไขข้อมูลลูกค้า':'เพิ่มลูกค้าใหม่';
+  const F=['fullName','nickname','phone','lineId','email','gender','birthDate','birthTime','birthPlace','service','clientType','clientLevel','status','mainConcern','currentLifeContext','businessContext','notes','nextFollowUpDate'];
+  $('cf_id').value=c?.id||'';
+  F.forEach(f=>$('cf_'+f).value=c?.[f]||($('cf_'+f).tagName==='SELECT'?$('cf_'+f).options[0].value:''));
+  if(c){$('cf_service').value=c.service||'tarot';$('cf_clientType').value=c.clientType;$('cf_clientLevel').value=c.clientLevel;$('cf_status').value=c.status;}
+  const ctags=c?.tags||[];
+  const chipSet=[...new Set([...COMMON_TAGS,...state.clients.flatMap(x=>x.tags||[])])].slice(0,12);
+  $('cf_tagChips').innerHTML=chipSet.map(t=>`<label><input type="checkbox" value="${esc(t)}" ${ctags.includes(t)?'checked':''}>${esc(t)}</label>`).join('');
+  $('cf_tags').value=ctags.filter(t=>!chipSet.includes(t)).join(', ');
+  $('cf_sourceChips').innerHTML=SOURCES.map(sr=>`<label><input type="radio" name="cfSource" value="${esc(sr)}" ${c?.source===sr?'checked':''}>${esc(sr)}</label>`).join('');
+  toggleCaseTypeField();
+  $('clientModal').classList.add('open');
+}
+function toggleCaseTypeField(){$('cf_clientTypeField').style.display=$('cf_service').value==='fengshui'?'none':'block';}
+function saveClient(){
+  const name=$('cf_fullName').value.trim();
+  if(!name){toast('กรุณากรอกชื่อลูกค้า');return;}
+  const id=$('cf_id').value||uid();
+  const F=['fullName','nickname','phone','lineId','email','gender','birthDate','birthTime','birthPlace','service','clientType','clientLevel','status','mainConcern','currentLifeContext','businessContext','notes','nextFollowUpDate'];
+  const data=Object.fromEntries(F.map(f=>[f,$('cf_'+f).value.trim?$('cf_'+f).value.trim():$('cf_'+f).value]));
+  data.tags=[...new Set([
+    ...[...document.querySelectorAll('#cf_tagChips input:checked')].map(i=>i.value),
+    ...$('cf_tags').value.split(',').map(t=>t.trim()).filter(Boolean)
+  ])];
+  data.source=(document.querySelector('#cf_sourceChips input:checked')||{}).value||'';
+  const old=clientOf(id);
+  if(old)Object.assign(old,data);
+  else state.clients.unshift({id,createdAt:todayStr(),lastSessionDate:'',...data});
+  saveState();closeModal('clientModal');renderClients();
+  if(currentClientId===id&&$('view-profile').style.display==='block')openProfile(id);
+  toast('บันทึกข้อมูลลูกค้าแล้ว');
+}
+function archiveClient(id){
+  if(!confirm('ยืนยันการ Archive ลูกค้าคนนี้? ข้อมูลจะไม่ถูกลบ แต่จะไม่แสดงในรายการปกติ'))return;
+  const c=clientOf(id);if(c){c.status='archived';saveState();showView('clients');toast('Archive เรียบร้อย');}
+}
+
+/* ================= CLIENT PROFILE ================= */
+function openProfile(id){
+  currentClientId=id;const c=clientOf(id);if(!c)return;
+  const sess=state.sessions.filter(s=>s.clientId===id).sort((a,b)=>(b.sessionDate||'').localeCompare(a.sessionDate||''));
+  const reps=state.reports.filter(r=>r.clientId===id);
+  const als=state.alerts.filter(a=>a.clientId===id&&a.status!=='done');
+  const cons=(state.contacts||[]).filter(x=>x.clientId===id);
+  $('view-profile').innerHTML=`
+    <div class="page-head no-print">
+      <div><button class="btn ghost sm" onclick="showView('clients')">← Clients</button></div>
+      <div class="head-actions">
+        <button class="btn" onclick="openClientForm('${c.id}')">✏️ แก้ไขข้อมูล</button>
+        <button class="btn gold" onclick="openMessageModal('client','${c.id}')">✉️ Generate Follow-up Message</button>
+        <button class="btn primary" onclick="openSessionForm(null,'${c.id}')">＋ Create New Session</button>
+      </div>
+    </div>
+    <div class="detail-head">
+      <div><h2>${esc(c.nickname||c.fullName)}</h2>
+      <p style="color:var(--ink-soft);font-size:13.5px">${esc(c.fullName)} ${c.clientLevel==='vip'?'<span class="chip gold">VIP</span>':''} <span class="chip gold">${SERVICE_TH[c.service||'tarot']}</span> ${(c.service||'tarot')==='tarot'&&c.clientType?`<span class="chip amber">${TYPE_TH[c.clientType]||''}</span>`:''} ${(c.tags||[]).map(t=>`<span class="chip">${esc(t)}</span>`).join(' ')}</p></div>
+    </div>
+    <div class="card panel">
+      <div class="section-title">ข้อมูลพื้นฐาน</div>
+      <dl class="kv">
+        <dt>ติดต่อ</dt><dd>${esc(c.phone||'—')} • LINE: ${esc(c.lineId||'—')} • ${esc(c.email||'—')}</dd>
+        <dt>ดวงกำเนิด</dt><dd>${fmtDate(c.birthDate)} ${esc(c.birthTime||'')} ${c.birthPlace?'• '+esc(c.birthPlace):''}</dd>
+        <dt>ดูล่าสุด</dt><dd>${fmtDate(c.lastSessionDate)}</dd>
+        <dt>นัดถัดไป</dt><dd>${fmtDate(c.nextFollowUpDate)}</dd>
+        <dt>รู้จักผ่าน</dt><dd>${esc(c.source||'ไม่ได้ระบุ')}</dd>
+      </dl>
+    </div>
+    <div class="card panel">
+      <div class="section-title">Life Context</div>
+      <dl class="kv">
+        <dt>เรื่องหลักที่กังวล</dt><dd>${esc(c.mainConcern||'ไม่ได้ระบุ')}</dd>
+        <dt>สถานการณ์ตอนนี้</dt><dd>${esc(c.currentLifeContext||'ไม่ได้ระบุ')}</dd>
+        <dt>บริบทธุรกิจ</dt><dd>${esc(c.businessContext||'ไม่ได้ระบุ')}</dd>
+        <dt>โน้ต</dt><dd>${esc(c.notes||'—')}</dd>
+      </dl>
+    </div>
+    ${als.length?`<div class="card panel"><div class="section-title">Alert ที่เกี่ยวข้อง</div>${als.map(a=>`<div class="row-item"><span class="chip ${priorityOf(a.score)==='urgent'?'red':priorityOf(a.score)==='watch'?'amber':'green'}">${a.score}</span><div class="grow"><div class="title">${ALERT_TH[a.type]}</div><div class="sub">${esc(a.reason)}</div></div></div>`).join('')}</div>`:''}
+    <div class="card panel">
+      <div class="section-title">ประวัติ Session ทั้งหมด (${sess.length})</div>
+      ${sess.length?sess.map(s=>`<div class="row-item">
+        <div class="grow"><div class="title">${fmtDate(s.sessionDate)} • ${SESSION_TH[s.sessionType]||s.sessionType}</div>
+        <div class="sub">${esc(s.mainQuestion||'—')}</div></div>
+        <span class="chip ${s.riskLevel==='high'?'red':s.riskLevel==='medium'?'amber':''}">${s.riskLevel==='high'?'เสี่ยงสูง':s.riskLevel==='medium'?'เสี่ยงกลาง':'เสี่ยงต่ำ'}</span>
+        <button class="btn sm" onclick="openSessionForm('${s.id}')">เปิดดู</button>
+      </div>`).join(''):'<p style="font-size:13.5px;color:var(--ink-soft)">ยังไม่มี session — กด Create New Session เพื่อบันทึกครั้งแรก</p>'}
+    </div>
+    <div class="card panel">
+      <div class="section-title">ประวัติการติดต่อ (${cons.length})</div>
+      ${cons.length?cons.slice(0,10).map(x=>`<div class="row-item">
+        <div class="grow"><div class="title">${fmtDate(x.date)} • ${esc(x.topic)}</div>
+        ${x.note?`<div class="sub">${esc(x.note)}</div>`:''}</div>
+        <span class="chip ${/ดีขึ้น|เรียบร้อย|นัด/.test(x.outcome)?'green':/ติดต่อไม่ได้|แย่ลง/.test(x.outcome)?'red':''}">${esc(x.outcome)}</span>
+      </div>`).join(''):'<p style="font-size:13.5px;color:var(--ink-soft)">ยังไม่มีบันทึก — ทุกครั้งที่กด Mark as Done ระบบจะเก็บผลการติดต่อไว้ที่นี่อัตโนมัติ</p>'}
+    </div>
+    <div class="card panel">
+      <div class="section-title">Report ที่เคยสร้าง (${reps.length})</div>
+      ${reps.length?reps.map(r=>`<div class="row-item"><div class="grow"><div class="title">Report • ${fmtDate(r.createdAt)}</div><div class="sub">${esc(r.title||'')}</div></div><span class="chip ${r.status==='sent'?'green':'amber'}">${r.status}</span><button class="btn sm" onclick="openReport('${r.id}')">เปิด Report</button></div>`).join(''):'<p style="font-size:13.5px;color:var(--ink-soft)">ยังไม่มี report</p>'}
+    </div>
+    <div class="no-print" style="margin-top:8px"><button class="btn ghost danger sm" onclick="archiveClient('${c.id}')">Archive ลูกค้าคนนี้</button></div>`;
+  showView('profile');
+}
+/* ================= SESSIONS ================= */
+function renderSessions(){
+  const list=[...state.sessions].sort((a,b)=>(b.sessionDate||'').localeCompare(a.sessionDate||''));
+  const el=$('sessionList');
+  if(!list.length){el.innerHTML=`<div class="empty"><h3>ยังไม่มี session</h3><p>บันทึกการดูแต่ละครั้ง เพื่อให้ระบบช่วยสรุป ออก report และตั้งเตือนช่วงเวลาสำคัญให้อัตโนมัติ</p><button class="btn primary" onclick="openSessionForm()">＋ New Session</button></div>`;return;}
+  el.innerHTML=`<div class="card panel">`+list.map(s=>`
+    <div class="row-item">
+      <div class="grow"><div class="title">${esc(clientName(s.clientId))} • ${fmtDate(s.sessionDate)}</div>
+      <div class="sub">${SESSION_TH[s.sessionType]||s.sessionType} — ${esc(s.mainQuestion||'—')}</div></div>
+      ${Number(s.fee)?`<span class="chip ${s.paidStatus==='unpaid'?'red':'green'}">฿${Number(s.fee).toLocaleString()}${s.paidStatus==='unpaid'?' ค้าง':''}</span>`:s.paidStatus==='free'?'<span class="chip">ฟรี</span>':''}
+      <span class="chip ${s.reportStatus==='sent'?'green':s.reportStatus==='generated'?'amber':''}">${s.reportStatus||'draft'}</span>
+      <button class="btn sm" onclick="openSessionForm('${s.id}')">เปิดดู</button>
+    </div>`).join('')+`</div>`;
+}
+
+function openSessionForm(sessionId,presetClientId,presetType){
+  currentSessionId=sessionId||null;
+  const s=sessionId?state.sessions.find(x=>x.id===sessionId):null;
+  const initType=s?.sessionType||presetType||'tarot';
+  const clientOpts=state.clients.filter(c=>c.status!=='archived').map(c=>`<option value="${c.id}" ${(s?.clientId||presetClientId)===c.id?'selected':''}>${esc(c.nickname||c.fullName)} (${esc(c.fullName)})</option>`).join('');
+  if(!state.clients.length){toast('กรุณาเพิ่มลูกค้าก่อนสร้าง session');showView('clients');openClientForm();return;}
+  const v=(f,d='')=>esc(s?.[f]??d);
+  $('view-sessionform').innerHTML=`
+    <div class="page-head">
+      <div><button class="btn ghost sm" onclick="showView('sessions')">← Sessions</button>
+      <h2 style="margin-top:8px">${s?'Session • '+fmtDate(s.sessionDate):'New Session'}</h2></div>
+      <div class="head-actions">
+        ${s?`<button class="btn" id="btnSummary" onclick="genSummary('${s.id}')">✨ Generate AI Summary</button>
+        <button class="btn gold" id="btnReport" onclick="genReport('${s.id}')">📄 Generate Report</button>
+        <button class="btn" onclick="createAlertFromSession('${s.id}')">🔔 Create Alert</button>`:''}
+      </div>
+    </div>
+    <div class="card panel" style="max-width:760px">
+      <div class="grid2">
+        <div class="field"><label>ลูกค้า *</label><select id="sf_clientId">${clientOpts}</select></div>
+        <div class="field"><label>วันที่ดู *</label><input type="date" id="sf_sessionDate" value="${v('sessionDate',todayStr())}"></div>
+      </div>
+      <div class="grid2">
+        <div class="field"><label>ศาสตร์ที่ใช้</label>
+          <select id="sf_sessionType" onchange="toggleFsPanel()">${Object.entries(SESSION_TH).map(([k,t])=>`<option value="${k}" ${initType===k?'selected':''}>${t}</option>`).join('')}</select></div>
+        <div class="field"><label>คำถามหลักของลูกค้า</label><input type="text" id="sf_mainQuestion" value="${v('mainQuestion')}" placeholder="ประโยคเดียว">
+          <button type="button" class="btn sm ghost" style="margin-top:6px" onclick="useClientConcern()">↩︎ ใช้เรื่องหลักของลูกค้าคนนี้</button></div>
+      </div>
+      <div id="fsPanel" style="display:${initType==='fengshui'?'block':'none'}">
+        <div class="section-title">งานฮวงจุ้ย — ติ๊กเลือก ไม่ต้องพิมพ์</div>
+        <div class="field"><label>ประเภทสถานที่</label>
+          <div class="chk-chips" id="fs_place">${FS_PLACES.map(p=>`<label><input type="radio" name="fsPlace" value="${p}" ${s?.fengshui?.place===p?'checked':''}>${p}</label>`).join('')}</div></div>
+        <div class="field"><label>จุดที่ปรับ (เลือกได้หลายข้อ)</label>
+          <div class="chk-chips" id="fs_adjust">${FS_ADJUST.map(p=>`<label><input type="checkbox" value="${p}" ${(s?.fengshui?.adjustments||[]).includes(p)?'checked':''}>${p}</label>`).join('')}</div></div>
+        <div class="field"><label>เป้าหมายของลูกค้า</label>
+          <div class="chk-chips" id="fs_goals">${FS_GOALS.map(p=>`<label><input type="checkbox" value="${p}" ${(s?.fengshui?.goals||[]).includes(p)?'checked':''}>${p}</label>`).join('')}</div></div>
+        <div class="field"><label>รอบติดตามผลอัตโนมัติ (ระบบจะเตือนเองในหน้า Today)</label>
+          <div class="chk-chips gold" id="fs_checkpoints">${[1,3,6].map(m=>`<label><input type="checkbox" value="${m}" ${s?(s.fengshui?.checkpoints||[]).includes(m)?'checked':'':'checked'}>${m} เดือน</label>`).join('')}</div></div>
+      </div>
+      <details class="collap" ${s&&(s.cardsDrawn||s.astrologyNotes||s.transcript)?'open':''}><summary>รายละเอียดการอ่าน — ไพ่ / ดวง / Transcript (ไม่บังคับ)</summary><div class="inner">
+        <div class="field"><label>ไพ่ที่ออก</label><input type="text" id="sf_cardsDrawn" value="${v('cardsDrawn')}" placeholder="เช่น The Tower, 3 of Cups"></div>
+        <div class="field"><label>โน้ตด้านโหราศาสตร์ / ดวง</label><textarea class="bul" id="sf_astrologyNotes" rows="2" placeholder="• จุดเด่นของดวงช่วงนี้">${v('astrologyNotes')}</textarea></div>
+        <div class="field"><label>Transcript / บทสนทนา (วางได้ยาว)</label><textarea id="sf_transcript" rows="4">${v('transcript')}</textarea></div>
+      </div></details>
+      <div class="field"><label>โน้ตของที่ปรึกษา (กด Enter = ขึ้นข้อใหม่อัตโนมัติ)</label><textarea class="bul" id="sf_advisorNotes" rows="3" placeholder="• พิมพ์เป็นข้อสั้นๆ">${v('advisorNotes')}</textarea></div>
+      <div class="field"><label>คำแนะนำสำคัญที่ให้ไป</label><textarea class="bul" id="sf_keyAdvice" rows="2" placeholder="• คำแนะนำหลัก 1-3 ข้อ">${v('keyAdvice')}</textarea></div>
+      <div class="grid2">
+        <div class="field"><label>Action Plan ระยะสั้น (1 เดือนแรก)</label><textarea class="bul" id="sf_actionPlan7Days" rows="2" placeholder="• สิ่งที่ต้องทำเดือนนี้">${v('actionPlan7Days')}</textarea></div>
+        <div class="field"><label>Action Plan ระยะยาว (3–6 เดือน)</label><textarea class="bul" id="sf_actionPlan30Days" rows="2" placeholder="• เป้าหมายระยะยาว">${v('actionPlan30Days')}</textarea></div>
+      </div>
+      <div class="section-title">ช่วงเวลาที่ต้องเตือน</div>
+      <div class="grid2">
+        <div class="field"><label>ช่วงทำนายเริ่ม</label><input type="date" id="sf_predictionStartDate" value="${v('predictionStartDate')}"></div>
+        <div class="field"><label>ช่วงทำนายสิ้นสุด</label><input type="date" id="sf_predictionEndDate" value="${v('predictionEndDate')}"></div>
+      </div>
+      <div class="grid3">
+        <div class="field"><label>ค่าบริการ (บาท)</label><input type="number" id="sf_fee" value="${v('fee')}" placeholder="0" min="0"></div>
+        <div class="field"><label>การชำระ</label>
+          <select id="sf_paidStatus"><option value="paid" ${s?.paidStatus==='paid'?'selected':''}>ชำระแล้ว</option><option value="unpaid" ${s?.paidStatus==='unpaid'?'selected':''}>ค้างชำระ</option><option value="free" ${s?.paidStatus==='free'?'selected':''}>ฟรี/โปรโมชั่น</option></select></div>
+        <div class="field"><label>ต้อง Follow-up?</label>
+          <select id="sf_followUpNeeded"><option value="yes" ${s?.followUpNeeded?'selected':''}>ใช่</option><option value="no" ${s&&!s.followUpNeeded?'selected':''}>ไม่</option></select></div>
+      </div>
+      <div class="grid2">
+        <div class="field"><label>ระดับความเสี่ยง</label>
+          <select id="sf_riskLevel"><option value="low" ${s?.riskLevel==='low'?'selected':''}>Low</option><option value="medium" ${s?.riskLevel==='medium'?'selected':''}>Medium</option><option value="high" ${s?.riskLevel==='high'?'selected':''}>High</option></select></div>
+        <div class="field"><label>ระดับโอกาส</label>
+          <select id="sf_opportunityLevel"><option value="low" ${s?.opportunityLevel==='low'?'selected':''}>Low</option><option value="medium" ${s?.opportunityLevel==='medium'?'selected':''}>Medium</option><option value="high" ${s?.opportunityLevel==='high'?'selected':''}>High</option></select></div>
+      </div>
+      <div class="field"><label>วันที่ Follow-up</label>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+          <input type="date" id="sf_followUpDate" value="${v('followUpDate')}" style="max-width:200px">
+          <button type="button" class="btn sm" onclick="quickFollow(1)">+1 เดือน</button>
+          <button type="button" class="btn sm" onclick="quickFollow(3)">+3 เดือน</button>
+          <button type="button" class="btn sm" onclick="quickFollow(6)">+6 เดือน</button>
+        </div></div>
+      ${s?.aiSummary?`<div class="section-title">AI Summary</div><div class="msg-box" style="margin-bottom:0">${esc(s.aiSummary)}</div>`:''}
+      <div class="modal-foot" style="justify-content:flex-start">
+        <button class="btn primary" onclick="saveSession()">💾 บันทึก Session</button>
+        ${s?'':'<span style="font-size:12.5px;color:var(--ink-faint);align-self:center">บันทึกก่อน จึงจะ Generate Summary / Report ได้</span>'}
+      </div>
+    </div>`;
+  showView('sessionform');
+}
+function saveSession(){
+  const clientId=$('sf_clientId').value;
+  if(!clientId){toast('กรุณาเลือกลูกค้า');return;}
+  const F=['sessionDate','sessionType','mainQuestion','cardsDrawn','astrologyNotes','transcript','advisorNotes','keyAdvice','actionPlan7Days','actionPlan30Days','predictionStartDate','predictionEndDate','riskLevel','opportunityLevel','followUpDate','fee','paidStatus'];
+  const data=Object.fromEntries(F.map(f=>[f,$('sf_'+f).value]));
+  data.clientId=clientId;
+  data.followUpNeeded=$('sf_followUpNeeded').value==='yes';
+  if($('sf_sessionType').value==='fengshui'){
+    const pick=id=>[...document.querySelectorAll('#'+id+' input:checked')].map(i=>i.value);
+    const prev=currentSessionId?state.sessions.find(x=>x.id===currentSessionId)?.fengshui:null;
+    data.fengshui={
+      place:(document.querySelector('#fs_place input:checked')||{}).value||'',
+      adjustments:pick('fs_adjust'),goals:pick('fs_goals'),
+      checkpoints:pick('fs_checkpoints').map(Number),
+      done:prev?.done||{}
+    };
+  }
+  let s=currentSessionId?state.sessions.find(x=>x.id===currentSessionId):null;
+  if(s)Object.assign(s,data);
+  else{s={id:uid(),reportStatus:'draft',createdAt:todayStr(),...data};state.sessions.unshift(s);currentSessionId=s.id;}
+  // update lastSessionDate + default follow-up
+  const c=clientOf(clientId);
+  if(c){
+    if(!c.lastSessionDate||data.sessionDate>c.lastSessionDate)c.lastSessionDate=data.sessionDate;
+    if(data.followUpNeeded&&data.followUpDate)c.nextFollowUpDate=data.followUpDate;
+    else if(data.followUpNeeded&&!data.followUpDate){
+      const d=new Date(data.sessionDate+'T00:00:00');d.setDate(d.getDate()+(Number(state.settings.followDays)||30));
+      s.followUpDate=d.toISOString().slice(0,10);c.nextFollowUpDate=s.followUpDate;
+    }
+  }
+  saveState();toast('บันทึก session แล้ว');openSessionForm(s.id);
+}
+function toggleFsPanel(){$('fsPanel').style.display=$('sf_sessionType').value==='fengshui'?'block':'none';}
+function useClientConcern(){
+  const c=clientOf($('sf_clientId').value);
+  if(c?.mainConcern){$('sf_mainQuestion').value=c.mainConcern;toast('ดึงเรื่องหลักของลูกค้ามาใส่แล้ว');}
+  else toast('ลูกค้าคนนี้ยังไม่มีเรื่องหลักบันทึกไว้');
+}
+function quickFollow(m){
+  const base=$('sf_sessionDate').value||todayStr();
+  $('sf_followUpDate').value=addMonths(base,m);
+  $('sf_followUpNeeded').value='yes';
+  toast('ตั้ง follow-up: '+fmtDate($('sf_followUpDate').value));
+}
+/* bullet auto-format: กด Enter = ขึ้น • ใหม่ */
+document.addEventListener('keydown',e=>{
+  if(e.key==='Enter'&&e.target.classList&&e.target.classList.contains('bul')){
+    e.preventDefault();
+    e.target.setRangeText('\n• ',e.target.selectionStart,e.target.selectionEnd,'end');
+  }
+});
+document.addEventListener('focusin',e=>{
+  if(e.target.classList&&e.target.classList.contains('bul')&&!e.target.value.trim())e.target.value='• ';
+});
+
+/* ================= FENGSHUI VIEW ================= */
+function renderFengshui(){
+  const list=state.sessions.filter(s=>s.sessionType==='fengshui').sort((a,b)=>(b.sessionDate||'').localeCompare(a.sessionDate||''));
+  const el=$('fengshuiList');const t=todayStr();
+  if(!list.length){el.innerHTML=`<div class="empty"><h3>ยังไม่มีงานฮวงจุ้ย</h3><p>บันทึกงานจัดฮวงจุ้ยแต่ละครั้ง แล้วระบบจะเตือนให้ทักลูกค้าตามรอบ 1 / 3 / 6 เดือนโดยอัตโนมัติ</p><button class="btn primary" onclick="openSessionForm(null,null,'fengshui')">＋ งานฮวงจุ้ยใหม่</button></div>`;return;}
+  el.innerHTML=list.map(s=>{
+    const fs=s.fengshui||{};const c=clientOf(s.clientId);
+    const steps=(fs.checkpoints||[1,3,6]).map(m=>{
+      const due=addMonths(s.sessionDate,m);const dd=daysBetween(t,due);
+      const doneDate=fs.done?.[m];const res=fs.results?.[m];
+      let cls='',txt='อีก '+dd+' วัน ('+fmtDate(due)+')';
+      if(doneDate){cls='done';txt=res?res.outcome+(res.note?' — '+esc(res.note):''):'ติดตามแล้ว '+fmtDate(doneDate);}
+      else if(dd<=0){cls='due';txt=dd===0?'ถึงกำหนดวันนี้':'เลยกำหนด '+(-dd)+' วัน';}
+      else if(dd<=7){cls='soon';txt='อีก '+dd+' วัน';}
+      return`<div class="fs-step ${cls}"><b>รอบ ${m} เดือน ${doneDate?'✓':''}</b><span>${txt}</span>
+        ${!doneDate&&dd<=7?`<div style="margin-top:8px"><button class="btn sm" onclick="markCheckpoint('${s.id}',${m})">✓ ติดตามแล้ว</button></div>`:''}</div>`;
+    }).join('');
+    return`<div class="card panel">
+      <div class="alert-top">
+        <span class="name">${esc(clientName(s.clientId))}</span>
+        ${c?.clientLevel==='vip'?'<span class="chip gold">VIP</span>':''}
+        ${fs.place?`<span class="chip amber">${esc(fs.place)}</span>`:''}
+        <span class="chip">จัดเมื่อ ${fmtDate(s.sessionDate)}</span>
+      </div>
+      <div style="font-size:13px;color:var(--ink-soft);margin:4px 0 2px">
+        ${(fs.adjustments||[]).length?'ปรับ: '+fs.adjustments.map(esc).join(' • '):''}
+        ${(fs.goals||[]).length?'<br>เป้าหมาย: '+fs.goals.map(esc).join(' • '):''}
+      </div>
+      <div class="fs-timeline">${steps}</div>
+      <div class="alert-btns" style="margin-top:12px">
+        <button class="btn sm gold" onclick="openMessageModal('client','${s.clientId}')">✉️ Generate Message</button>
+        <button class="btn sm" onclick="openSessionForm('${s.id}')">เปิด Session</button>
+        <button class="btn sm ghost" onclick="openProfile('${s.clientId}')">Open Client →</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function createAlertFromSession(sessionId){
+  const s=state.sessions.find(x=>x.id===sessionId);if(!s)return;
+  const c=clientOf(s.clientId);
+  const a={id:uid(),key:'manual:'+sessionId+':'+Date.now(),type:'life_event_due',clientId:s.clientId,status:'open',createdAt:todayStr(),
+    reason:'ติดตามผลจาก session วันที่ '+fmtDate(s.sessionDate)+': '+(s.mainQuestion||'—'),
+    action:'สอบถามความคืบหน้า และย้ำคำแนะนำ: '+(s.keyAdvice||'ตามที่ให้ไว้ใน session'),
+    score:Math.min(100,40+(c?.clientLevel==='vip'?20:0)+(s.riskLevel==='high'?20:0)),sessionId};
+  state.alerts.unshift(a);saveState();toast('สร้าง alert แล้ว — ดูได้ที่หน้า Today');
+}
+/* ================= AI SERVICE (แยก module, มี mock fallback) ================= */
+const AI={
+  async call(prompt,maxTokens=1000){
+    if(MODE==='cloud'){
+      const r=await cloudFetch('/api/ai',{method:'POST',body:JSON.stringify({prompt,maxTokens})});
+      if(!r.ok)throw new Error('AI proxy '+r.status);
+      const j=await r.json();return(j.text||'').trim();
+    }
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:maxTokens,messages:[{role:'user',content:prompt}]})
+    });
+    if(!res.ok)throw new Error('AI error '+res.status);
+    const data=await res.json();
+    return data.content.filter(b=>b.type==='text').map(b=>b.text).join('\n').trim();
+  },
+  sessionContext(s,c){
+    return `ข้อมูลลูกค้า:
+- ชื่อ: ${c.fullName}${c.nickname?' (คุณ'+c.nickname+')':''}
+- ประเภทเคส: ${TYPE_TH[c.clientType]||'ไม่ได้ระบุ'} | ระดับ: ${c.clientLevel}
+- เรื่องหลักที่กังวล: ${c.mainConcern||'ไม่ได้ระบุ'}
+- สถานการณ์ชีวิตตอนนี้: ${c.currentLifeContext||'ไม่ได้ระบุ'}
+- บริบทธุรกิจ: ${c.businessContext||'ไม่ได้ระบุ'}
+
+ข้อมูล session (${fmtDate(s.sessionDate)} • ${SESSION_TH[s.sessionType]||''}):
+- คำถามหลัก: ${s.mainQuestion||'ไม่ได้ระบุ'}
+- ไพ่ที่ออก: ${s.cardsDrawn||'ไม่ได้ระบุ'}
+- โน้ตโหราศาสตร์: ${s.astrologyNotes||'ไม่ได้ระบุ'}
+- Transcript: ${s.transcript||'ไม่ได้ระบุ'}
+- โน้ตที่ปรึกษา: ${s.advisorNotes||'ไม่ได้ระบุ'}
+- คำแนะนำสำคัญ: ${s.keyAdvice||'ไม่ได้ระบุ'}
+- Action Plan 7 วัน: ${s.actionPlan7Days||'ไม่ได้ระบุ'}
+- Action Plan 30 วัน: ${s.actionPlan30Days||'ไม่ได้ระบุ'}
+- ช่วงเวลาทำนาย: ${s.predictionStartDate?fmtDate(s.predictionStartDate)+' ถึง '+fmtDate(s.predictionEndDate||s.predictionStartDate):'ไม่ได้ระบุ'}
+- ความเสี่ยง: ${s.riskLevel} | โอกาส: ${s.opportunityLevel}${s.fengshui?`
+- งานฮวงจุ้ย: สถานที่ ${s.fengshui.place||'ไม่ได้ระบุ'} | จุดที่ปรับ: ${(s.fengshui.adjustments||[]).join(', ')||'ไม่ได้ระบุ'} | เป้าหมาย: ${(s.fengshui.goals||[]).join(', ')||'ไม่ได้ระบุ'} | รอบติดตาม: ${(s.fengshui.checkpoints||[]).join('/')} เดือน`:''}`;
+  },
+  async generateSessionSummary(s,c){
+    const prompt=`คุณคือผู้ช่วยหลังบ้านของที่ปรึกษา/หมอดูมืออาชีพ สรุป session ต่อไปนี้เป็นภาษาไทย 4-6 บรรทัด อ่านง่าย เป็นมืออาชีพ อบอุ่น ห้ามแต่งข้อมูลที่ไม่มี ถ้าไม่มีให้เขียนว่า "ไม่ได้ระบุ" ตอบเฉพาะเนื้อหาสรุป ไม่ต้องมีคำนำ\n\n${this.sessionContext(s,c)}`;
+    try{return await this.call(prompt,600);}
+    catch(e){return `[Mock Summary — เชื่อมต่อ AI ไม่สำเร็จ]\nลูกค้า${c.nickname?'คุณ'+c.nickname:c.fullName} เข้ารับคำปรึกษาเรื่อง "${s.mainQuestion||'ไม่ได้ระบุ'}" ด้วยศาสตร์ ${SESSION_TH[s.sessionType]||'ไม่ได้ระบุ'} ${s.cardsDrawn?'ไพ่ที่ออก: '+s.cardsDrawn:''}\nคำแนะนำสำคัญ: ${s.keyAdvice||'ไม่ได้ระบุ'}\nความเสี่ยง: ${s.riskLevel} • โอกาส: ${s.opportunityLevel}${s.predictionStartDate?'\nช่วงติดตาม: '+fmtDate(s.predictionStartDate):''}`;}
+  },
+  async generateReport(s,c){
+    const keys=['clientInfo','consultTopic','situationOverview','mainConcerns','hiddenPatterns','methodsUsed','keyInsights','watchOut','opportunities','plan7','plan30','followUpWindow','selfCare','advisorNote'];
+    const prompt=`คุณคือผู้ช่วยเขียนรายงานของที่ปรึกษามืออาชีพ (consulting-grade) จากข้อมูลจริงด้านล่างเท่านั้น ห้ามแต่งเติมข้อมูลที่ไม่มี ถ้าหัวข้อใดไม่มีข้อมูลให้ใส่ค่า "ไม่ได้ระบุ" ภาษาไทยอ่านง่าย อบอุ่น เป็นมืออาชีพ ไม่ใช้ศัพท์ยาก
+
+ตอบกลับเป็น JSON เท่านั้น ห้ามมีข้อความอื่นหรือ markdown code fence โดยใช้ key ต่อไปนี้ (ค่าเป็น string ภาษาไทย 1-4 ประโยคต่อหัวข้อ ยกเว้น plan7/plan30 เขียนเป็นข้อๆ ขึ้นบรรทัดใหม่ได้):
+${keys.join(', ')}
+
+ความหมายของแต่ละ key: clientInfo=สรุปข้อมูลลูกค้าสั้นๆ, consultTopic=หัวข้อที่เข้ารับคำปรึกษา, situationOverview=ภาพรวมสถานการณ์ตอนนี้, mainConcerns=ประเด็นสำคัญที่ลูกค้ากังวล, hiddenPatterns=สิ่งที่ซ่อนอยู่หรือ pattern ที่น่าสนใจ, methodsUsed=ไพ่/ดวง/ศาสตร์ที่ใช้วิเคราะห์, keyInsights=Insight สำคัญจากการอ่าน, watchOut=สิ่งที่ควรระวัง, opportunities=โอกาสที่ควรจับ, plan7=Action Plan ระยะสั้น 1 เดือนแรก, plan30=Action Plan ระยะยาว 3-6 เดือน, followUpWindow=ช่วงเวลาที่ควรติดตาม (ถ้าเป็นงานฮวงจุ้ยให้อิงรอบ 1/3/6 เดือน), selfCare=ข้อความแนะนำสำหรับการดูแลตัวเอง, advisorNote=หมายเหตุจากที่ปรึกษา
+
+${this.sessionContext(s,c)}`;
+    try{
+      const raw=await this.call(prompt,1000);
+      const clean=raw.replace(/```json|```/g,'').trim();
+      const j=JSON.parse(clean);
+      const out={};keys.forEach(k=>out[k]=(j[k]||'ไม่ได้ระบุ').toString());
+      return out;
+    }catch(e){
+      const nv=x=>x&&x.trim()?x:'ไม่ได้ระบุ';
+      return{clientInfo:`${c.fullName}${c.nickname?' (คุณ'+c.nickname+')':''} • ${TYPE_TH[c.clientType]||''}`,
+        consultTopic:nv(s.mainQuestion),situationOverview:nv(c.currentLifeContext),mainConcerns:nv(c.mainConcern),
+        hiddenPatterns:'ไม่ได้ระบุ',methodsUsed:(SESSION_TH[s.sessionType]||'ไม่ได้ระบุ')+(s.cardsDrawn?' • ไพ่ที่ออก: '+s.cardsDrawn:''),
+        keyInsights:nv(s.advisorNotes),watchOut:s.riskLevel==='high'?'ช่วงนี้มีความเสี่ยงสูง ควรตัดสินใจอย่างรอบคอบ':'ไม่ได้ระบุ',
+        opportunities:s.opportunityLevel==='high'?'มีช่วงโอกาสสำคัญที่ควรเตรียมตัวล่วงหน้า':'ไม่ได้ระบุ',
+        plan7:nv(s.actionPlan7Days),plan30:nv(s.actionPlan30Days),
+        followUpWindow:s.predictionStartDate?fmtDate(s.predictionStartDate)+' ถึง '+fmtDate(s.predictionEndDate||s.predictionStartDate):'ไม่ได้ระบุ',
+        selfCare:'พักผ่อนให้เพียงพอ และค่อยๆ ทำตามแผนทีละขั้น ไม่ต้องรีบ',advisorNote:nv(s.keyAdvice),_mock:true};
+    }
+  },
+  async generateFollowUpMessage(ctx){
+    const toneTH={warm:'อบอุ่น เป็นกันเอง',professional:'สุภาพ เป็นมืออาชีพ',premium:'พรีเมียม ใส่ใจ ระดับที่ปรึกษาส่วนตัว',direct:'ตรงประเด็น กระชับ'};
+    const prompt=`คุณคือผู้ช่วยของที่ปรึกษา/หมอดู "${state.settings.advisor}" (แบรนด์ ${state.settings.brand}) เขียนข้อความ LINE ถึงลูกค้า 1 ข้อความ ภาษาไทย โทน${toneTH[state.settings.tone]||'อบอุ่น'} ความยาว 3-5 บรรทัด เฉพาะบุคคล อิงจากข้อมูลจริงด้านล่างเท่านั้น ห้ามแต่งเรื่องที่ไม่มีในข้อมูล ห้ามขายตรงเกินไป จบด้วย CTA เบาๆ เช่น ชวนทักมาคุยถ้ามีเรื่องต้องตัดสินใจ ตอบเฉพาะตัวข้อความ ไม่ต้องมีคำอธิบาย
+
+${ctx}`;
+    try{return await this.call(prompt,500);}
+    catch(e){return null;}
+  }
+};
+
+/* ================= AI SUMMARY & REPORT ACTIONS ================= */
+async function genSummary(sessionId){
+  const s=state.sessions.find(x=>x.id===sessionId);const c=clientOf(s.clientId);
+  const btn=$('btnSummary');btn.disabled=true;btn.innerHTML='<span class="spinner"></span> กำลังสรุป…';
+  s.aiSummary=await AI.generateSessionSummary(s,c);
+  saveState();openSessionForm(sessionId);toast('สร้าง summary แล้ว');
+}
+async function genReport(sessionId){
+  const s=state.sessions.find(x=>x.id===sessionId);const c=clientOf(s.clientId);
+  const btn=$('btnReport');btn.disabled=true;btn.innerHTML='<span class="spinner"></span> กำลังสร้าง Report…';
+  const data=await AI.generateReport(s,c);
+  const r={id:uid(),clientId:c.id,sessionId,createdAt:todayStr(),status:'generated',title:(s.mainQuestion||SESSION_TH[s.sessionType]||'Advisor Report'),data};
+  state.reports.unshift(r);
+  s.reportStatus='generated';s.reportUrl='#report-'+r.id;
+  saveState();
+  if(data._mock)toast('เชื่อมต่อ AI ไม่สำเร็จ — สร้าง report แบบ mock จากข้อมูลที่กรอกไว้');
+  openReport(r.id);
+}
+
+/* ================= REPORTS ================= */
+function renderReports(){
+  const el=$('reportList');
+  if(!state.reports.length){el.innerHTML=`<div class="empty"><h3>ยังไม่มี report</h3><p>เปิด session ที่บันทึกไว้ แล้วกด "Generate Report" ระบบจะเรียบเรียงเป็นรายงานระดับ consulting พร้อม export PDF</p><button class="btn primary" onclick="showView('sessions')">ไปที่ Sessions</button></div>`;return;}
+  el.innerHTML=`<div class="card panel">`+state.reports.map(r=>`
+    <div class="row-item">
+      <div class="grow"><div class="title">${esc(clientName(r.clientId))} • ${fmtDate(r.createdAt)}</div>
+      <div class="sub">${esc(r.title||'')}</div></div>
+      <span class="chip ${r.status==='sent'?'green':'amber'}">${r.status}</span>
+      <button class="btn sm" onclick="openReport('${r.id}')">เปิด Report</button>
+    </div>`).join('')+`</div>`;
+}
+function openReport(id){
+  currentReportId=id;
+  const r=state.reports.find(x=>x.id===id);if(!r)return;
+  const c=clientOf(r.clientId);const s=state.sessions.find(x=>x.id===r.sessionId)||{};
+  const d=r.data;const P=t=>esc(t).replace(/\n/g,'<br>');
+  const sec=(no,title,body)=>`<h2><span class="no">${no}</span>${title}</h2><p>${P(body||'ไม่ได้ระบุ')}</p>`;
+  $('reportSheet').innerHTML=`<div class="report-sheet">
+    <div class="r-brand"><h1>${esc(state.settings.brand)} Advisor Report</h1><span>${fmtDate(r.createdAt)} • Confidential</span></div>
+    <div class="r-meta">
+      <div><b>ลูกค้า:</b> ${esc(c?.fullName||'—')}${c?.nickname?' ('+esc(c.nickname)+')':''}</div>
+      <div><b>วันที่ปรึกษา:</b> ${fmtDate(s.sessionDate)}</div>
+      <div><b>ศาสตร์ที่ใช้:</b> ${SESSION_TH[s.sessionType]||'—'}</div>
+      <div><b>ที่ปรึกษา:</b> ${esc(state.settings.advisor)}</div>
+    </div>
+    ${sec('01','ข้อมูลลูกค้า',d.clientInfo)}
+    ${sec('02','หัวข้อที่เข้ารับคำปรึกษา',d.consultTopic)}
+    ${sec('03','ภาพรวมสถานการณ์ตอนนี้',d.situationOverview)}
+    ${sec('04','ประเด็นสำคัญที่ลูกค้ากังวล',d.mainConcerns)}
+    ${sec('05','สิ่งที่ซ่อนอยู่ / Pattern ที่น่าสนใจ',d.hiddenPatterns)}
+    ${sec('06','ไพ่ / ดวง / ศาสตร์ที่ใช้วิเคราะห์',d.methodsUsed)}
+    ${sec('07','Insight สำคัญจากการอ่าน',d.keyInsights)}
+    ${sec('08','สิ่งที่ควรระวัง',d.watchOut)}
+    ${sec('09','โอกาสที่ควรจับ',d.opportunities)}
+    ${sec('10','Action Plan ระยะสั้น (1 เดือนแรก)',d.plan7)}
+    ${sec('11','Action Plan ระยะยาว (3–6 เดือน)',d.plan30)}
+    ${sec('12','ช่วงเวลาที่ควรติดตาม',d.followUpWindow)}
+    ${sec('13','คำแนะนำสำหรับการดูแลตัวเอง',d.selfCare)}
+    ${sec('14','หมายเหตุจากที่ปรึกษา',d.advisorNote)}
+    <div class="r-sign">
+      <div>จัดทำโดย ${esc(state.settings.advisor)}<div class="line">ลายเซ็นที่ปรึกษา</div></div>
+      <div style="text-align:right">โน้ตเพิ่มเติม<div class="line">&nbsp;</div></div>
+    </div>
+    <div class="r-foot">${esc(state.settings.footer)}</div>
+  </div>`;
+  $('markSentBtn').style.display=r.status==='sent'?'none':'inline-flex';
+  showView('reportpreview');
+}
+function markReportSent(){
+  const r=state.reports.find(x=>x.id===currentReportId);if(!r)return;
+  r.status='sent';
+  const s=state.sessions.find(x=>x.id===r.sessionId);if(s)s.reportStatus='sent';
+  saveState();toast('บันทึกสถานะ: ส่งแล้ว');openReport(r.id);
+}
+/* ================= MESSAGE GENERATOR ================= */
+async function openMessageModal(kind,id){
+  msgContext={kind,id};
+  $('msgBody').textContent='กำลังเรียบเรียงข้อความ…';
+  $('msgModal').classList.add('open');
+  await buildMessage();
+}
+async function regenMessage(){$('msgBody').textContent='กำลังเรียบเรียงใหม่…';await buildMessage();}
+async function buildMessage(){
+  let ctx='',fallback='';
+  if(msgContext.kind==='alert'){
+    const a=state.alerts.find(x=>x.id===msgContext.id);const c=clientOf(a.clientId);
+    const s=a.sessionId?state.sessions.find(x=>x.id===a.sessionId):state.sessions.find(x=>x.clientId===c.id);
+    ctx=`เหตุผลที่ทัก: ${a.reason}\nสิ่งที่ควรสื่อ: ${a.action}\nชื่อลูกค้า: ${c.nickname?'คุณ'+c.nickname:c.fullName}\nเรื่องที่เคยคุย: ${s?.mainQuestion||c.mainConcern||'ไม่ได้ระบุ'}\nคำแนะนำที่เคยให้: ${s?.keyAdvice||'ไม่ได้ระบุ'}`;
+    if(a.type==='fengshui_followup'&&s?.fengshui)ctx+=`\nงานฮวงจุ้ย: ${s.fengshui.place||''} จุดที่ปรับ: ${(s.fengshui.adjustments||[]).join(', ')} เป้าหมาย: ${(s.fengshui.goals||[]).join(', ')} ครบรอบ ${a.checkpoint} เดือน — ให้ถามผลลัพธ์อย่างเป็นธรรมชาติ ห้ามฟันธงว่าดีขึ้นแล้ว`;
+    fallback=mockMsg(c,a.reason,s);
+  }else{
+    const c=clientOf(msgContext.id);
+    const s=state.sessions.filter(x=>x.clientId===c.id).sort((a,b)=>(b.sessionDate||'').localeCompare(a.sessionDate||''))[0];
+    ctx=`เหตุผลที่ทัก: ติดตามผลหลังการปรึกษา\nชื่อลูกค้า: ${c.nickname?'คุณ'+c.nickname:c.fullName}\nเรื่องที่เคยคุย: ${s?.mainQuestion||c.mainConcern||'ไม่ได้ระบุ'}\nคำแนะนำที่เคยให้: ${s?.keyAdvice||'ไม่ได้ระบุ'}\nสถานการณ์ลูกค้า: ${c.currentLifeContext||'ไม่ได้ระบุ'}`;
+    fallback=mockMsg(c,'ติดตามผลหลังการปรึกษา',s);
+  }
+  const msg=await AI.generateFollowUpMessage(ctx);
+  $('msgBody').textContent=msg||fallback+'\n\n[เชื่อมต่อ AI ไม่สำเร็จ — ข้อความนี้สร้างจากแม่แบบ]';
+  state.messages.unshift({id:uid(),createdAt:todayStr(),context:msgContext,text:msg||fallback});
+  saveState();
+}
+function mockMsg(c,reason,s){
+  const name=c.nickname?'คุณ'+c.nickname:c.fullName;
+  return `สวัสดี${name}ครับ\nช่วงนี้ผมนึกถึงเรื่องที่เราเคยคุยกันไว้${s?.mainQuestion?'เกี่ยวกับ'+s.mainQuestion:''} เลยทักมาถามไถ่หน่อยครับ\n\n${s?.keyAdvice?'ที่เคยแนะนำไว้ว่า "'+s.keyAdvice+'" ช่วงนี้ยังใช้ได้อยู่นะครับ':'ถ้ามีอะไรเปลี่ยนแปลง อัปเดตกันได้เสมอครับ'}\n\nถ้าช่วงนี้มีเรื่องที่ต้องตัดสินใจ ลองทักมาคุยกันได้ครับ`;
+}
+function copyMessage(){
+  const t=$('msgBody').textContent;
+  const ta=document.createElement('textarea');ta.value=t;document.body.appendChild(ta);ta.select();
+  try{document.execCommand('copy');toast('คัดลอกแล้ว พร้อมวางส่งลูกค้า');}catch(e){toast('คัดลอกไม่สำเร็จ');}
+  document.body.removeChild(ta);
+}
+
+function todaySummaryText(){
+  const open=state.alerts.filter(a=>a.status==='open'||(a.status==='snoozed'&&a.snoozeUntil<=todayStr()));
+  open.sort((a,b)=>b.score-a.score);
+  const dueTasks=(state.tasks||[]).filter(x=>!x.done&&x.dueDate&&x.dueDate<=todayStr());
+  let txt='☀️ '+state.settings.brand+' — '+new Date().toLocaleDateString('th-TH',{day:'numeric',month:'short'})+'\n';
+  if(dueTasks.length){
+    txt+='\n📋 งานของคุณวันนี้ ('+dueTasks.length+'):\n';
+    dueTasks.slice(0,6).forEach(x=>{txt+='• '+x.text+(x.dueDate<todayStr()?' (ค้างมา '+(-daysBetween(todayStr(),x.dueDate))+' วัน)':'')+'\n';});
+  }
+  if(!open.length&&!dueTasks.length)return '☀️ '+state.settings.brand+' — วันนี้ไม่มีงานค้างและไม่มีลูกค้าที่ต้องติดตาม';
+  if(open.length){
+    const icon=s=>s>=80?'🔴':s>=50?'🟡':'🟢';
+    txt+='\n👥 ลูกค้าที่ควรดูแล '+open.length+' คน:\n';
+    open.slice(0,8).forEach(a=>{
+      const c=clientOf(a.clientId);
+      txt+='\n'+icon(a.score)+' '+(c?.nickname||c?.fullName||'—')+' ('+a.score+')\n   '+ALERT_TH[a.type]+' — '+a.reason;
+    });
+    if(open.length>8)txt+='\n…และอีก '+(open.length-8)+' รายการ';
+  }
+  const mo=todayStr().slice(0,7);
+  const rev=state.sessions.filter(s=>(s.sessionDate||'').startsWith(mo)&&s.paidStatus!=='unpaid').reduce((a,s)=>a+(Number(s.fee)||0),0);
+  const tgt=Number(state.settings.monthlyTarget)||100000;
+  const fsC=state.sessions.filter(s=>(s.sessionDate||'').startsWith(mo)&&s.sessionType==='fengshui').length;
+  txt+='\n\n🎯 เดือนนี้: ฿'+rev.toLocaleString()+' / ฿'+tgt.toLocaleString()+' ('+Math.min(100,Math.round(rev/tgt*100))+'%) • ฮวงจุ้ย '+fsC+'/'+(Number(state.settings.fsCaseTarget)||4)+' เคส';
+  return txt;
+}
+async function pushWebhook(){
+  const url=(state.settings.webhookUrl||'').trim();
+  if(!url)return;
+  try{
+    const open=state.alerts.filter(a=>a.status==='open');
+    await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({source:'banktarot-advisor-os',date:todayStr(),summary:todaySummaryText(),
+        alerts:open.map(a=>({client:clientName(a.clientId),type:a.type,score:a.score,reason:a.reason,action:a.action}))})});
+    toast('ส่งแจ้งเตือนไป webhook แล้ว');
+  }catch(e){toast('ส่ง webhook ไม่สำเร็จ — ตรวจ URL ใน Settings');}
+}
+
+/* ================= TELEGRAM (เรียกตรงจากแอปได้เลย ไม่ต้องมี server) ================= */
+async function tgSend(text){
+  const tk=(state.settings.telegramBotToken||'').trim(),chat=(state.settings.telegramChatId||'').trim();
+  if(!tk||!chat)return false;
+  const r=await fetch('https://api.telegram.org/bot'+tk+'/sendMessage',{
+    method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({chat_id:chat,text:text.slice(0,4000)})});
+  const j=await r.json();
+  if(!j.ok)throw new Error(j.description||'telegram error');
+  return true;
+}
+async function pushTelegram(){
+  try{if(await tgSend(todaySummaryText()))toast('ส่งสรุปเข้า Telegram แล้ว ✓');}
+  catch(e){toast('ส่ง Telegram ไม่สำเร็จ — ตรวจ Token/Chat ID');}
+}
+async function findTgChat(){
+  const tk=$('setTgToken').value.trim();
+  if(!tk){toast('วาง Bot Token ก่อนครับ');return;}
+  try{
+    const r=await fetch('https://api.telegram.org/bot'+tk+'/getUpdates');
+    const j=await r.json();
+    if(!j.ok)throw new Error('badtoken');
+    const msgs=(j.result||[]).filter(u=>u.message?.chat?.id);
+    if(!msgs.length){toast('ยังไม่เจอ — ทักบอทของคุณ 1 ข้อความก่อน แล้วกดค้นหาอีกครั้ง');return;}
+    const chat=msgs[msgs.length-1].message.chat;
+    $('setTgChat').value=chat.id;
+    toast('เจอแล้ว: '+(chat.first_name||chat.title||chat.id)+' — อย่าลืมกดบันทึก');
+  }catch(e){
+    if(String(e.message)==='badtoken')toast('Token ไม่ถูกต้อง — คัดลอกจาก @BotFather ใหม่');
+    else alert('หน้าพรีวิวนี้ถูกบล็อกไม่ให้ต่อ Telegram โดยตรง\n\nหา Chat ID แบบแมนนวล:\n1) ทักบอทของคุณ 1 ข้อความ\n2) เปิดลิงก์นี้ในเบราว์เซอร์:\napi.telegram.org/bot<TOKEN>/getUpdates\n3) หาเลขหลัง "chat":{"id": แล้วนำมาใส่ช่อง Chat ID\n\nค่าที่บันทึกไว้จะถูกใช้ส่งอัตโนมัติทุกเช้าเมื่อระบบขึ้น Vercel');
+  }
+}
+async function testTelegram(){
+  const tk=$('setTgToken').value.trim();let chat=$('setTgChat').value.trim();
+  if(chat.startsWith('@')){toast('Chat ID ต้องเป็นตัวเลข ไม่ใช่ @ชื่อบอท — กดปุ่มค้นหา หรือดูวิธีแมนนวล');return;}
+  if(!tk||!chat){toast('ใส่ Token และ Chat ID ให้ครบก่อน');return;}
+  state.settings.telegramBotToken=tk;state.settings.telegramChatId=chat;saveState();
+  try{await tgSend('✅ '+state.settings.brand+' เชื่อม Telegram สำเร็จ!\nทุกครั้งที่สแกน สรุปลูกค้าที่ควรติดตามจะส่งมาที่นี่ครับ');
+    toast('ส่งสำเร็จ! เช็คใน Telegram ได้เลย');}
+  catch(e){toast('บันทึกค่าไว้แล้ว — พรีวิวนี้ส่งตรงไม่ได้ แต่ระบบ cloud จะส่งให้ทุกเช้าปกติ');}
+}
+
+/* ================= SETTINGS ================= */
+function fillSettings(){
+  const s=state.settings;
+  $('setBrand').value=s.brand;$('setAdvisor').value=s.advisor;$('setFooter').value=s.footer;
+  $('setFollowDays').value=s.followDays;$('setScanWindow').value=s.scanWindow==='7'?'14':s.scanWindow;$('setTone').value=s.tone;
+  $('setWebhook').value=s.webhookUrl||'';
+  $('setTarget').value=s.monthlyTarget||100000;
+  $('setFsTarget').value=s.fsCaseTarget||4;
+  $('setTgToken').value=s.telegramBotToken||'';
+  $('setTgChat').value=s.telegramChatId||'';
+  $('modeLabel').textContent=MODE==='cloud'?'Cloud (Vercel + Supabase) — เตือนอัตโนมัติทุกเช้า':'ทดลองใช้ในเครื่อง — เตือนเมื่อกดสแกนเอง';
+}
+function exportData(){
+  const blob=new Blob([JSON.stringify(state,null,1)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download='banktarot-backup-'+todayStr()+'.json';a.click();
+  toast('ดาวน์โหลดไฟล์สำรองแล้ว');
+}
+function importData(){
+  const txt=prompt('วางเนื้อหาไฟล์ JSON ที่ Export ไว้ ที่นี่:');
+  if(!txt)return;
+  try{
+    const d=JSON.parse(txt);
+    if(!d.clients)throw new Error();
+    if(!confirm('Import ข้อมูล: ลูกค้า '+d.clients.length+' คน, session '+(d.sessions||[]).length+' รายการ — ข้อมูลปัจจุบันจะถูกแทนที่ ยืนยัน?'))return;
+    applyData(d);saveState();runAlertScan(false);showView('today');toast('Import เรียบร้อย');
+  }catch(e){toast('ไฟล์ไม่ถูกต้อง — ตรวจว่าคัดลอก JSON มาครบ');}
+}
+function saveSettings(){
+  state.settings={brand:$('setBrand').value.trim()||'BankTarot',advisor:$('setAdvisor').value.trim()||'Advisor',
+    footer:$('setFooter').value.trim(),followDays:Number($('setFollowDays').value)||30,
+    scanWindow:$('setScanWindow').value,tone:$('setTone').value,webhookUrl:$('setWebhook').value.trim(),
+    telegramBotToken:$('setTgToken').value.trim(),telegramChatId:$('setTgChat').value.trim(),
+    monthlyTarget:Number($('setTarget').value)||100000,fsCaseTarget:Number($('setFsTarget').value)||4};
+  $('brandName').textContent=state.settings.brand;
+  saveState();toast('บันทึกการตั้งค่าแล้ว');
+}
+
+/* ================= SEED DATA (ตัวอย่างครั้งแรก) ================= */
+function seedData(){
+  const t=new Date();const plus=d=>{const x=new Date();x.setDate(x.getDate()+d);return x.toISOString().slice(0,10);};
+  const c1={id:'c_demo1',createdAt:todayStr(),fullName:'เมธาวี ศิริวงศ์',nickname:'เมย์',phone:'081-234-5678',lineId:'@may.siri',email:'',gender:'หญิง',
+    birthDate:'1990-'+String(t.getMonth()+1).padStart(2,'0')+'-'+String(Math.min(28,t.getDate()+5)).padStart(2,'0'),birthTime:'08:45',birthPlace:'กรุงเทพฯ',
+    service:'tarot',clientType:'business',clientLevel:'vip',status:'active',mainConcern:'ขยายทีมและหา Partner ธุรกิจ',
+    currentLifeContext:'กำลังขยายร้านสาขาที่ 2 ภายในไตรมาสนี้',businessContext:'ธุรกิจร้านอาหาร 1 สาขา ยอดขายโตต่อเนื่อง',
+    notes:'ชอบให้พูดตรงๆ มีเหตุผลประกอบ',tags:['เจ้าของธุรกิจ','ลงทุน'],lastSessionDate:plus(-10),nextFollowUpDate:plus(0)};
+  const c2={id:'c_demo2',createdAt:todayStr(),fullName:'ภาณุพงศ์ รัตนชัย',nickname:'บอส',phone:'',lineId:'@boss.p',email:'',gender:'ชาย',
+    birthDate:'1985-03-12',birthTime:'',birthPlace:'เชียงใหม่',service:'tarot',clientType:'career',clientLevel:'regular',status:'active',
+    mainConcern:'ตัดสินใจเปลี่ยนงาน',currentLifeContext:'มีข้อเสนองานใหม่ 2 ที่ กำลังชั่งใจ',businessContext:'',
+    notes:'',tags:['พนักงานบริษัท'],lastSessionDate:plus(-100),nextFollowUpDate:''};
+  const s1={id:'s_demo1',clientId:'c_demo1',createdAt:todayStr(),sessionDate:plus(-10),sessionType:'mixed',
+    mainQuestion:'จังหวะขยายสาขาและการเลือก Partner',cardsDrawn:'The Emperor, 3 of Pentacles, Seven of Swords',
+    astrologyNotes:'ดาวจรเข้าเรือนการงานช่วงกลางเดือนหน้า เป็นจังหวะเปลี่ยนผ่าน',
+    transcript:'',advisorNotes:'ลูกค้ามีความพร้อมด้านทุน แต่ยังลังเลเรื่องคน ไพ่ Seven of Swords ชี้ให้ระวังข้อตกลงที่ไม่โปร่งใส',
+    keyAdvice:'ตรวจสัญญากับ Partner ให้ละเอียดก่อนเซ็น โดยเฉพาะเรื่องส่วนแบ่งและอำนาจตัดสินใจ',
+    actionPlan7Days:'ลิสต์คุณสมบัติ Partner ที่ต้องการ\nนัดคุยผู้สมัคร 2-3 ราย',actionPlan30Days:'สรุปดีล Partner\nวางแผนเปิดสาขา 2',
+    predictionStartDate:plus(7),predictionEndDate:plus(21),riskLevel:'medium',opportunityLevel:'high',
+    followUpNeeded:true,followUpDate:plus(0),reportStatus:'draft',reportUrl:''};
+  const c3={id:'c_demo3',createdAt:todayStr(),fullName:'ณัฐพล วัฒนกิจ',nickname:'เต้',phone:'',lineId:'@tae.nk',email:'',gender:'ชาย',
+    birthDate:'1988-11-02',birthTime:'',birthPlace:'',service:'fengshui',clientType:'',clientLevel:'regular',status:'active',
+    mainConcern:'ยอดขายหน้าร้านตก',currentLifeContext:'เพิ่งปรับฮวงจุ้ยร้านกาแฟไปเมื่อเดือนก่อน',businessContext:'ร้านกาแฟ 1 สาขา',
+    notes:'',tags:['ร้านค้า'],lastSessionDate:plus(-31),nextFollowUpDate:''};
+  const s2={id:'s_demo2',clientId:'c_demo3',createdAt:todayStr(),sessionDate:plus(-31),sessionType:'fengshui',
+    mainQuestion:'ปรับฮวงจุ้ยร้านกาแฟให้ยอดขายดีขึ้น',cardsDrawn:'',astrologyNotes:'',transcript:'',
+    advisorNotes:'• ย้ายเคาน์เตอร์เก็บเงินไปมุมการเงิน\n• เปลี่ยนทิศประตูรอง',keyAdvice:'• อย่าวางของบังทางเข้าหลัก\n• เติมน้ำตู้ปลาสม่ำเสมอ',
+    actionPlan7Days:'• จัดหน้าร้านตามผังใหม่',actionPlan30Days:'• สังเกตยอดขายเทียบเดือนก่อน',
+    predictionStartDate:'',predictionEndDate:'',riskLevel:'low',opportunityLevel:'medium',
+    followUpNeeded:false,followUpDate:'',reportStatus:'draft',reportUrl:'',
+    fengshui:{place:'ร้านค้า',adjustments:['จุดการเงิน/โต๊ะเก็บเงิน','ประตู/ทางเข้า','น้ำ (ตู้ปลา/น้ำพุ)'],goals:['การเงิน','ค้าขาย/ลูกค้า'],checkpoints:[1,3,6],done:{}}};
+  state.clients=[c1,c2,c3];state.sessions=[s1,s2];
+  saveState();
+}
+
+/* ================= INIT ================= */
+function migrate(){
+  // ผู้ใช้เดิมที่ยังมีข้อมูล demo แต่ยังไม่มีตัวอย่างฮวงจุ้ย — เติมให้เห็นระบบรอบ 1/3/6 เดือนทันที
+  const hasFs=state.sessions.some(s=>s.sessionType==='fengshui');
+  const inDemo=state.clients.some(c=>c.id==='c_demo1');
+  if(!hasFs&&inDemo&&!state.clients.some(c=>c.id==='c_demo3')){
+    const plus=d=>{const x=new Date();x.setDate(x.getDate()+d);return x.toISOString().slice(0,10);};
+    state.clients.push({id:'c_demo3',createdAt:todayStr(),fullName:'ณัฐพล วัฒนกิจ',nickname:'เต้',phone:'',lineId:'@tae.nk',email:'',gender:'ชาย',
+      birthDate:'1988-11-02',birthTime:'',birthPlace:'',service:'fengshui',clientType:'',clientLevel:'regular',status:'active',
+      mainConcern:'ยอดขายหน้าร้านตก',currentLifeContext:'เพิ่งปรับฮวงจุ้ยร้านกาแฟไปเมื่อเดือนก่อน',businessContext:'ร้านกาแฟ 1 สาขา',
+      notes:'',tags:['ค้าขาย/ร้านค้า','ฮวงจุ้ย'],lastSessionDate:plus(-31),nextFollowUpDate:''});
+    state.sessions.push({id:'s_demo2',clientId:'c_demo3',createdAt:todayStr(),sessionDate:plus(-31),sessionType:'fengshui',
+      mainQuestion:'ปรับฮวงจุ้ยร้านกาแฟให้ยอดขายดีขึ้น',cardsDrawn:'',astrologyNotes:'',transcript:'',
+      advisorNotes:'• ย้ายเคาน์เตอร์เก็บเงินไปมุมการเงิน\n• เปลี่ยนทิศประตูรอง',keyAdvice:'• อย่าวางของบังทางเข้าหลัก\n• เติมน้ำตู้ปลาสม่ำเสมอ',
+      actionPlan7Days:'• จัดหน้าร้านตามผังใหม่',actionPlan30Days:'• สังเกตยอดขายเทียบเดือนก่อน',
+      predictionStartDate:'',predictionEndDate:'',riskLevel:'low',opportunityLevel:'medium',
+      followUpNeeded:false,followUpDate:'',reportStatus:'draft',reportUrl:'',
+      fengshui:{place:'ร้านค้า',adjustments:['จุดการเงิน/โต๊ะเก็บเงิน','ประตู/ทางเข้า','น้ำ (ตู้ปลา/น้ำพุ)'],goals:['การเงิน','ค้าขาย/ลูกค้า'],checkpoints:[1,3,6],done:{}}});
+    saveState();
+  }
+  if(state.settings.scanWindow==='7')state.settings.scanWindow='14';
+  // แยกหมวด "บริการ" (ดูดวง/ฮวงจุ้ย) ออกจาก "ประเภทเคส" ให้ชัดเจน — ลูกค้าเก่าที่ยังไม่มี service ให้เดาจาก clientType เดิม
+  let svcChanged=false;
+  state.clients.forEach(c=>{
+    if(c.service)return;
+    svcChanged=true;
+    if(c.clientType==='fengshui'){c.service='fengshui';c.clientType='';}
+    else if(c.clientType==='vip'){c.service='tarot';c.clientLevel=c.clientLevel||'vip';c.clientType='life';}
+    else c.service='tarot';
+  });
+  if(svcChanged)saveState();
+}
+(async function init(){
+  const had=await loadState();
+  if(!had)seedData();
+  migrate();
+  $('brandName').textContent=state.settings.brand;
+  runAlertScan(false);
+  showView('today');
+})();
+</script>
+</body>
+</html>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               
